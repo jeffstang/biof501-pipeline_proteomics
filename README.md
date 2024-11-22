@@ -1,2 +1,1 @@
-# biof501-pipeline_proteomics
-This is an example proteomics pipeline created as a requirement for a course
+# BIOF 501 Term Project: RNASeq workflow for differential expression and gene summarization 
