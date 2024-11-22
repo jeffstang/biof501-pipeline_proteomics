@@ -1,56 +1,74 @@
-Nov-18 11:56:06.774 [main] DEBUG nextflow.cli.Launcher - $> nextflow run main.nf -resume
-Nov-18 11:56:06.877 [main] DEBUG nextflow.cli.CmdRun - N E X T F L O W  ~  version 24.10.0
-Nov-18 11:56:06.903 [main] DEBUG nextflow.plugin.PluginsFacade - Setting up plugin manager > mode=prod; embedded=false; plugins-dir=/home/jtang/.nextflow/plugins; core-plugins: nf-amazon@2.9.0,nf-azure@1.10.1,nf-cloudcache@0.4.2,nf-codecommit@0.2.2,nf-console@1.1.4,nf-google@1.15.2,nf-tower@1.9.3,nf-wave@1.7.2
-Nov-18 11:56:06.927 [main] INFO  o.pf4j.DefaultPluginStatusProvider - Enabled plugins: []
-Nov-18 11:56:06.928 [main] INFO  o.pf4j.DefaultPluginStatusProvider - Disabled plugins: []
-Nov-18 11:56:06.932 [main] INFO  org.pf4j.DefaultPluginManager - PF4J version 3.12.0 in 'deployment' mode
-Nov-18 11:56:06.949 [main] INFO  org.pf4j.AbstractPluginManager - No plugins
-Nov-18 11:56:07.037 [main] DEBUG nextflow.cli.CmdRun - Applied DSL=2 by global default
-Nov-18 11:56:07.052 [main] DEBUG nextflow.cli.CmdRun - Launching `main.nf` [focused_williams] DSL2 - revision: 7fe513845e
-Nov-18 11:56:07.054 [main] DEBUG nextflow.plugin.PluginsFacade - Plugins default=[]
-Nov-18 11:56:07.055 [main] DEBUG nextflow.plugin.PluginsFacade - Plugins resolved requirement=[]
-Nov-18 11:56:07.124 [main] DEBUG nextflow.Session - Session UUID: 0e61262d-dde8-428b-a748-2930953e39c2
-Nov-18 11:56:07.125 [main] DEBUG nextflow.Session - Run name: focused_williams
-Nov-18 11:56:07.126 [main] DEBUG nextflow.Session - Executor pool size: 16
-Nov-18 11:56:07.135 [main] DEBUG nextflow.file.FilePorter - File porter settings maxRetries=3; maxTransfers=50; pollTimeout=null
-Nov-18 11:56:07.144 [main] DEBUG nextflow.util.ThreadPoolBuilder - Creating thread pool 'FileTransfer' minSize=10; maxSize=48; workQueue=LinkedBlockingQueue[10000]; allowCoreThreadTimeout=false
-Nov-18 11:56:07.173 [main] DEBUG nextflow.cli.CmdRun - 
+Nov-21 20:49:54.823 [main] DEBUG nextflow.cli.Launcher - $> nextflow run main.nf
+Nov-21 20:49:55.020 [main] DEBUG nextflow.cli.CmdRun - N E X T F L O W  ~  version 24.10.0
+Nov-21 20:49:55.054 [main] DEBUG nextflow.plugin.PluginsFacade - Setting up plugin manager > mode=prod; embedded=false; plugins-dir=/home/jtang/.nextflow/plugins; core-plugins: nf-amazon@2.9.0,nf-azure@1.10.1,nf-cloudcache@0.4.2,nf-codecommit@0.2.2,nf-console@1.1.4,nf-google@1.15.2,nf-tower@1.9.3,nf-wave@1.7.2
+Nov-21 20:49:55.085 [main] INFO  o.pf4j.DefaultPluginStatusProvider - Enabled plugins: []
+Nov-21 20:49:55.086 [main] INFO  o.pf4j.DefaultPluginStatusProvider - Disabled plugins: []
+Nov-21 20:49:55.091 [main] INFO  org.pf4j.DefaultPluginManager - PF4J version 3.12.0 in 'deployment' mode
+Nov-21 20:49:55.114 [main] INFO  org.pf4j.AbstractPluginManager - No plugins
+Nov-21 20:49:55.153 [main] DEBUG nextflow.config.ConfigBuilder - Found config local: /home/jtang/biof501-term_project/nextflow.config
+Nov-21 20:49:55.158 [main] DEBUG nextflow.config.ConfigBuilder - Parsing config file: /home/jtang/biof501-term_project/nextflow.config
+Nov-21 20:49:55.212 [main] DEBUG n.secret.LocalSecretsProvider - Secrets store: /home/jtang/.nextflow/secrets/store.json
+Nov-21 20:49:55.217 [main] DEBUG nextflow.secret.SecretsLoader - Discovered secrets providers: [nextflow.secret.LocalSecretsProvider@46044faa] - activable => nextflow.secret.LocalSecretsProvider@46044faa
+Nov-21 20:49:55.228 [main] DEBUG nextflow.config.ConfigBuilder - Applying config profile: `standard`
+Nov-21 20:49:55.930 [main] DEBUG nextflow.cli.CmdRun - Applied DSL=2 by global default
+Nov-21 20:49:55.950 [main] DEBUG nextflow.cli.CmdRun - Launching `main.nf` [disturbed_lagrange] DSL2 - revision: 0cb1a87677
+Nov-21 20:49:55.953 [main] DEBUG nextflow.plugin.PluginsFacade - Plugins default=[]
+Nov-21 20:49:55.953 [main] DEBUG nextflow.plugin.PluginsFacade - Plugins resolved requirement=[]
+Nov-21 20:49:56.031 [main] DEBUG nextflow.Session - Session UUID: 97c7d83d-b320-4651-91a4-fdfaf3c14315
+Nov-21 20:49:56.032 [main] DEBUG nextflow.Session - Run name: disturbed_lagrange
+Nov-21 20:49:56.032 [main] DEBUG nextflow.Session - Executor pool size: 16
+Nov-21 20:49:56.047 [main] DEBUG nextflow.file.FilePorter - File porter settings maxRetries=3; maxTransfers=50; pollTimeout=null
+Nov-21 20:49:56.057 [main] DEBUG nextflow.util.ThreadPoolBuilder - Creating thread pool 'FileTransfer' minSize=10; maxSize=48; workQueue=LinkedBlockingQueue[10000]; allowCoreThreadTimeout=false
+Nov-21 20:49:56.092 [main] DEBUG nextflow.cli.CmdRun - 
   Version: 24.10.0 build 5928
   Created: 27-10-2024 18:36 UTC (11:36 PDT)
   System: Linux 5.15.146.1-microsoft-standard-WSL2
   Runtime: Groovy 4.0.23 on OpenJDK 64-Bit Server VM 17.0.10+7
   Encoding: UTF-8 (UTF-8)
-  Process: 7443@Jeff-Laptop [127.0.1.1]
-  CPUs: 16 - Mem: 15.3 GB (7.4 GB) - Swap: 4 GB (4 GB)
-Nov-18 11:56:07.205 [main] DEBUG nextflow.Session - Work-dir: /home/jtang/biof501-pipeline_proteomics/work [ext2/ext3]
-Nov-18 11:56:07.206 [main] DEBUG nextflow.Session - Script base path does not exist or is not a directory: /home/jtang/biof501-pipeline_proteomics/bin
-Nov-18 11:56:07.222 [main] DEBUG nextflow.executor.ExecutorFactory - Extension executors providers=[]
-Nov-18 11:56:07.236 [main] DEBUG nextflow.Session - Observer factory: DefaultObserverFactory
-Nov-18 11:56:07.277 [main] DEBUG nextflow.cache.CacheFactory - Using Nextflow cache factory: nextflow.cache.DefaultCacheFactory
-Nov-18 11:56:07.290 [main] DEBUG nextflow.util.CustomThreadPool - Creating default thread pool > poolSize: 17; maxThreads: 1000
-Nov-18 11:56:07.373 [main] DEBUG nextflow.Session - Session start
-Nov-18 11:56:07.909 [main] DEBUG nextflow.script.ScriptRunner - > Launching execution
-Nov-18 11:56:07.927 [main] DEBUG n.secret.LocalSecretsProvider - Secrets store: /home/jtang/.nextflow/secrets/store.json
-Nov-18 11:56:07.940 [main] DEBUG nextflow.secret.SecretsLoader - Discovered secrets providers: [nextflow.secret.LocalSecretsProvider@50eb4a2c] - activable => nextflow.secret.LocalSecretsProvider@50eb4a2c
-Nov-18 11:56:07.989 [main] INFO  nextflow.script.BaseScript - Calling my subwork 1 now
-Nov-18 11:56:07.998 [main] INFO  nextflow.Nextflow - Hello
-Nov-18 11:56:08.086 [main] DEBUG nextflow.executor.ExecutorFactory - << taskConfig executor: null
-Nov-18 11:56:08.087 [main] DEBUG nextflow.executor.ExecutorFactory - >> processorType: 'local'
-Nov-18 11:56:08.092 [main] DEBUG nextflow.executor.Executor - [warm up] executor > local
-Nov-18 11:56:08.099 [main] DEBUG n.processor.LocalPollingMonitor - Creating local task monitor for executor 'local' > cpus=16; memory=15.3 GB; capacity=16; pollInterval=100ms; dumpInterval=5m
-Nov-18 11:56:08.103 [main] DEBUG n.processor.TaskPollingMonitor - >>> barrier register (monitor: local)
-Nov-18 11:56:08.221 [main] DEBUG nextflow.Session - Workflow process names [dsl2]: PROC1, SUB_WORK1:PROC1
-Nov-18 11:56:08.222 [main] DEBUG nextflow.Session - Igniting dataflow network (1)
-Nov-18 11:56:08.222 [main] DEBUG nextflow.processor.TaskProcessor - Starting process > SUB_WORK1:PROC1
-Nov-18 11:56:08.224 [main] DEBUG nextflow.script.ScriptRunner - Parsed script files:
-  Script_74cdf0c3649b0e1d: /home/jtang/biof501-pipeline_proteomics/main.nf
-Nov-18 11:56:08.225 [main] DEBUG nextflow.script.ScriptRunner - > Awaiting termination 
-Nov-18 11:56:08.225 [main] DEBUG nextflow.Session - Session await
-Nov-18 11:56:08.419 [Actor Thread 3] INFO  nextflow.processor.TaskProcessor - [bc/efbdea] Cached process > SUB_WORK1:PROC1
-Nov-18 11:56:08.440 [main] DEBUG nextflow.Session - Session await > all processes finished
-Nov-18 11:56:08.510 [Task monitor] DEBUG n.processor.TaskPollingMonitor - <<< barrier arrives (monitor: local) - terminating tasks monitor poll loop
-Nov-18 11:56:08.511 [main] DEBUG nextflow.Session - Session await > all barriers passed
-Nov-18 11:56:08.517 [main] DEBUG n.trace.WorkflowStatsObserver - Workflow completed > WorkflowStats[succeededCount=0; failedCount=0; ignoredCount=0; cachedCount=1; pendingCount=0; submittedCount=0; runningCount=0; retriesCount=0; abortedCount=0; succeedDuration=0ms; failedDuration=0ms; cachedDuration=2ms;loadCpus=0; loadMemory=0; peakRunning=0; peakCpus=0; peakMemory=0; ]
-Nov-18 11:56:08.612 [main] DEBUG nextflow.cache.CacheDB - Closing CacheDB done
-Nov-18 11:56:08.632 [main] DEBUG nextflow.util.ThreadPoolManager - Thread pool 'FileTransfer' shutdown completed (hard=false)
-Nov-18 11:56:08.632 [main] DEBUG nextflow.script.ScriptRunner - > Execution complete -- Goodbye
+  Process: 17408@Jeff-Laptop [127.0.1.1]
+  CPUs: 16 - Mem: 15.3 GB (12.5 GB) - Swap: 4 GB (4 GB)
+Nov-21 20:49:56.124 [main] DEBUG nextflow.Session - Work-dir: /home/jtang/biof501-term_project/work [ext2/ext3]
+Nov-21 20:49:56.125 [main] DEBUG nextflow.Session - Script base path does not exist or is not a directory: /home/jtang/biof501-term_project/bin
+Nov-21 20:49:56.136 [main] DEBUG nextflow.executor.ExecutorFactory - Extension executors providers=[]
+Nov-21 20:49:56.148 [main] DEBUG nextflow.Session - Observer factory: DefaultObserverFactory
+Nov-21 20:49:56.195 [main] DEBUG nextflow.cache.CacheFactory - Using Nextflow cache factory: nextflow.cache.DefaultCacheFactory
+Nov-21 20:49:56.209 [main] DEBUG nextflow.util.CustomThreadPool - Creating default thread pool > poolSize: 17; maxThreads: 1000
+Nov-21 20:49:56.283 [main] DEBUG nextflow.Session - Session start
+Nov-21 20:49:56.980 [main] DEBUG nextflow.script.ScriptRunner - > Launching execution
+Nov-21 20:49:56.994 [main] INFO  nextflow.Nextflow - RNASeq Differential Analysis Pipeline
+=====================================
+FASTQ                    : /home/jtang/biof501-term_project/data/raw/*{R1,R2}*.fastq.gz
+Transcriptome FASTA      : /home/jtang/biof501-term_project/data/reference/grcm39_transcript.fa.gz
+Gene Annotations         : /home/jtang/biof501-term_project/data/reference/grcm39_transcript.gtf.gz
+Results Directory        : results
+
+Nov-21 20:49:57.129 [main] DEBUG nextflow.executor.ExecutorFactory - << taskConfig executor: null
+Nov-21 20:49:57.129 [main] DEBUG nextflow.executor.ExecutorFactory - >> processorType: 'local'
+Nov-21 20:49:57.137 [main] DEBUG nextflow.executor.Executor - [warm up] executor > local
+Nov-21 20:49:57.144 [main] DEBUG n.processor.LocalPollingMonitor - Creating local task monitor for executor 'local' > cpus=16; memory=15.3 GB; capacity=16; pollInterval=100ms; dumpInterval=5m
+Nov-21 20:49:57.148 [main] DEBUG n.processor.TaskPollingMonitor - >>> barrier register (monitor: local)
+Nov-21 20:49:57.247 [main] DEBUG nextflow.executor.ExecutorFactory - << taskConfig executor: null
+Nov-21 20:49:57.248 [main] DEBUG nextflow.executor.ExecutorFactory - >> processorType: 'local'
+Nov-21 20:49:57.253 [main] DEBUG nextflow.Session - Workflow process names [dsl2]: FASTQC, DOWNLOAD_REFERENCES:DOWNLOAD_FASTA, SALMON_INDEX, DOWNLOAD_FASTA, TRIM_READS, SALMON_QUANT, DOWNLOAD_GTF, DOWNLOAD_REFERENCES:DOWNLOAD_GTF
+Nov-21 20:49:57.255 [main] DEBUG nextflow.Session - Igniting dataflow network (2)
+Nov-21 20:49:57.255 [main] DEBUG nextflow.processor.TaskProcessor - Starting process > DOWNLOAD_REFERENCES:DOWNLOAD_FASTA
+Nov-21 20:49:57.256 [main] DEBUG nextflow.processor.TaskProcessor - Starting process > DOWNLOAD_REFERENCES:DOWNLOAD_GTF
+Nov-21 20:49:57.257 [main] DEBUG nextflow.script.ScriptRunner - Parsed script files:
+  Script_ccc68d871b6272a8: /home/jtang/biof501-term_project/main.nf
+Nov-21 20:49:57.257 [main] DEBUG nextflow.script.ScriptRunner - > Awaiting termination 
+Nov-21 20:49:57.257 [main] DEBUG nextflow.Session - Session await
+Nov-21 20:49:57.460 [Task submitter] DEBUG n.executor.local.LocalTaskHandler - Launch cmd line: /bin/bash -ue .command.run
+Nov-21 20:49:57.463 [Task submitter] INFO  nextflow.Session - [3d/179e68] Submitted process > DOWNLOAD_REFERENCES:DOWNLOAD_GTF
+Nov-21 20:49:57.475 [Task submitter] DEBUG n.executor.local.LocalTaskHandler - Launch cmd line: /bin/bash -ue .command.run
+Nov-21 20:49:57.476 [Task submitter] INFO  nextflow.Session - [75/8c4212] Submitted process > DOWNLOAD_REFERENCES:DOWNLOAD_FASTA
+Nov-21 20:50:16.408 [Task monitor] DEBUG n.processor.TaskPollingMonitor - Task completed > TaskHandler[id: 1; name: DOWNLOAD_REFERENCES:DOWNLOAD_GTF; status: COMPLETED; exit: 0; error: -; workDir: /home/jtang/biof501-term_project/work/3d/179e6876ac66e76332f1559501874a]
+Nov-21 20:50:16.410 [Task monitor] DEBUG nextflow.util.ThreadPoolBuilder - Creating thread pool 'TaskFinalizer' minSize=10; maxSize=48; workQueue=LinkedBlockingQueue[10000]; allowCoreThreadTimeout=false
+Nov-21 20:50:53.512 [Task monitor] DEBUG n.processor.TaskPollingMonitor - Task completed > TaskHandler[id: 2; name: DOWNLOAD_REFERENCES:DOWNLOAD_FASTA; status: COMPLETED; exit: 0; error: -; workDir: /home/jtang/biof501-term_project/work/75/8c421266d6a4737a3e67045a723335]
+Nov-21 20:50:53.517 [main] DEBUG nextflow.Session - Session await > all processes finished
+Nov-21 20:50:53.613 [Task monitor] DEBUG n.processor.TaskPollingMonitor - <<< barrier arrives (monitor: local) - terminating tasks monitor poll loop
+Nov-21 20:50:53.613 [main] DEBUG nextflow.Session - Session await > all barriers passed
+Nov-21 20:50:53.617 [main] DEBUG nextflow.util.ThreadPoolManager - Thread pool 'TaskFinalizer' shutdown completed (hard=false)
+Nov-21 20:50:53.624 [main] DEBUG n.trace.WorkflowStatsObserver - Workflow completed > WorkflowStats[succeededCount=2; failedCount=0; ignoredCount=0; cachedCount=0; pendingCount=0; submittedCount=0; runningCount=0; retriesCount=0; abortedCount=0; succeedDuration=1m 15s; failedDuration=0ms; cachedDuration=0ms;loadCpus=0; loadMemory=0; peakRunning=2; peakCpus=2; peakMemory=0; ]
+Nov-21 20:50:53.677 [main] DEBUG nextflow.cache.CacheDB - Closing CacheDB done
+Nov-21 20:50:53.704 [main] DEBUG nextflow.util.ThreadPoolManager - Thread pool 'FileTransfer' shutdown completed (hard=false)
+Nov-21 20:50:53.705 [main] DEBUG nextflow.script.ScriptRunner - > Execution complete -- Goodbye
