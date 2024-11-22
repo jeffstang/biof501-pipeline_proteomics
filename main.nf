@@ -48,7 +48,6 @@ gtf_url = "https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_mouse/release_M36
 workflow {
     // Check if reference files (FASTA and GTF exist), download if necessary:
     DOWNLOAD_REFERENCES(fasta_url, gtf_url)
-    DOWNLOAD_REFERENCES(fasta_url, gtf_url)
     
     // Initialize the read pair channel
     Channel
@@ -93,16 +92,6 @@ workflow RUN_SALMON {
     SALMON_INDEX()
 
     SALMON_QUANT()
-    take:
-    fasta_url
-    gtf_url
-    
-    main:
-    // Retrieve transcript fasta
-    DOWNLOAD_FASTA(fasta_url)
-
-    // Retrieve transcript annotations file
-    DOWNLOAD_GTF(gtf_url)
 }
 
 /* Run Salmon tool
@@ -110,8 +99,6 @@ workflow RUN_SALMON {
 workflow RUN_SALMON {
     // Index the reference transcriptome
     SALMON_INDEX()
-
-    SALMON_QUANT()
 }
 
 /// Processes
@@ -125,16 +112,11 @@ process DOWNLOAD_FASTA {
 
     output: 
     path("*.fa.gz"), emit: fasta
-        
-    path("*.fa.gz"), emit: fasta
-        
+                
     script:
     """
     wget -O ${fasta_url.split("/")[-1]} ${fasta_url}
-    wget -O ${fasta_url.split("/")[-1]} ${fasta_url}
-    """
-
-    
+    """    
 }
 
 process DOWNLOAD_GTF {
@@ -147,11 +129,9 @@ process DOWNLOAD_GTF {
 
     output: 
     path("*.gtf.gz"), emit: annotation
-    path("*.gtf.gz"), emit: annotation
 
     script:
     """
-    wget -O ${gtf_url.split("/")[-1]} ${gtf_url}
     wget -O ${gtf_url.split("/")[-1]} ${gtf_url}
     """
 }
@@ -164,7 +144,6 @@ process FASTQC {
     
     input:
     tuple val(sample_id), path(reads)    
-    val(read_type)
     val(read_type)
     
     output:
@@ -181,7 +160,6 @@ process TRIM_READS {
     tags "TRIM_READS on $sample_id"
     publishDir "${params.outdir}/trimmomatic", mode: 'copy'
     
-    
     input: 
     tuple val(sample_id), path(reads)
 
@@ -197,22 +175,6 @@ process TRIM_READS {
         ${sample_id}_R2_unpaired.fastq.gz \
         LEADING:3 TRAILING:3 SLIDINGWINDOW:4:15 MINLEN:36
     """
-}
-
-process SALMON_INDEX {
-    // pull docker container
-    input:
-    path(fasta)
-    
-    output:
-    path("index"), emit: index_ch 
-
-    script:
-    """
-    salmon index --threads 4 -t fasta -i index 
-    """
-}
-
 }
 
 process SALMON_INDEX {
