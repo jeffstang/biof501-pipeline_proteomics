@@ -20,7 +20,7 @@
  * Loading default parameters
 */
 
-params.fastq = "$baseDir/data/raw/*{R1,R2}*.fastq.gz"
+params.fastq = "$baseDir/data/raw/*{1,2}*.fastq.gz"
 params.fasta = "$baseDir/data/reference/grcm39_transcript.fa.gz"
 params.gtf = "$baseDir/data/reference/grcm39_transcript.gtf.gz"
 params.outdir = "results"
@@ -41,7 +41,10 @@ gtf = file(params.gtf)
 fasta_url = "https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_mouse/release_M36/gencode.vM36.transcripts.fa.gz"
 gtf_url = "https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_mouse/release_M36/gencode.vM36.basic.annotation.gtf.gz"
 
-// Workflow starts here
+//
+// WORKFLOW: run main analysis pipeline
+//
+
 workflow {
     // Check if reference files (FASTA and GTF exist), download if necessary:
     DOWNLOAD_REFERENCES(fasta_url, gtf_url)
@@ -50,20 +53,19 @@ workflow {
     Channel
         .fromFilePairs( params.fastq, flat: true )
         .ifEmpty { error "Cannot find matching FASTQ files: ${params.fastq}" }
-        .set { raw_reads_ch, trim_input_ch } 
+        .set { read_pairs_ch } 
          
     // Generate FASTQC reports on raw reads
-    FASTQC(raw_reads_ch, "raw")
+    FASTQC(read_pairs_ch, "raw")
  
     // Use trimmomatic to trim reads to remove low quality reads and adapter sequences
-    TRIM_READS( trim_input_ch )
-        .set { trimmed_reads_ch }
+    TRIM_READS( read_pairs_ch )
 
     // Generate FASTQC reports on trimmed reads
-    FASTQC(trimmed_reads_ch, "trimmed")
+    FASTQC(TRIM_READS.out.trimmed_reads, "trimmed")
     
     // Run Salmon processes
-    RUN_SALMON()
+    // RUN_SALMON()
 }
 
 /* 
@@ -96,6 +98,7 @@ workflow RUN_SALMON {
 process DOWNLOAD_FASTA {
     errorStrategy 'retry' 
     maxRetries 2
+    cache 'deep'
     
     input:
     val(fasta_url)
@@ -107,15 +110,12 @@ process DOWNLOAD_FASTA {
     """
     wget -O ${fasta_url.split("/")[-1]} ${fasta_url}
     """
-
-    
 }
 
 process DOWNLOAD_GTF {
     errorStrategy 'retry'
     maxRetries 2
-
-
+    cache 'deep'
 
     input:
     val(gtf_url)
@@ -140,20 +140,13 @@ process FASTQC {
     val(read_type)
     
     output:
-    path "${read_type}/${sample_id}"
+    path("*_fastqc.{zip,html}"), emit: fastqc_reports
 
     script:
     """
-    fastqc -o ${read_type}/${sample_id} -f fastq -q ${reads}
+    fastqc -o . -f fastq -q ${reads} 
     """
 }
-
-// process MULTIQC {
-//     // use docker container
-//     // input:
-//     // output:
-//     // script:
-// }
 
 process TRIM_READS {
     // use docker container
@@ -164,8 +157,7 @@ process TRIM_READS {
     tuple val(sample_id), path(reads)
 
     output:
-    tuple val(sample_id), path("${sample_id}_R1.fastq.gz"), emit: trimmed_R1
-    tuple val(sample_id), path("${sample_id}_R2.fastq.gz"), emit: trimmed_R2
+    tuple val(sample_id), path("${sample_id}_{1,2}.fastq.gz"), emit: trimmed_R1
 
     script:
     """
