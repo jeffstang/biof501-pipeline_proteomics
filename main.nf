@@ -21,8 +21,8 @@
 */
 
 params.fastq = "$baseDir/data/raw/*{R1,R2}*.fastq.gz"
-params.fasta = "$baseDir/data/reference/grcm39.fa.gz"
-params.gtf = "$baseDir/data/reference/grcm39.gtf.gz"
+params.fasta = "$baseDir/data/reference/grcm39_transcript.fa.gz"
+params.gtf = "$baseDir/data/reference/grcm39_transcript.gtf.gz"
 params.outdir = "results"
 
 log.info """\
@@ -44,17 +44,17 @@ gtf_url = "https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_mouse/release_M36
 // Workflow starts here
 workflow {
     // Check if reference files (FASTA and GTF exist), download if necessary:
-    DOWNLOAD_REFERENCES()
+    DOWNLOAD_REFERENCES(fasta_url, gtf_url)
     
     // Initialize the read pair channel
     Channel
         .fromFilePairs( params.fastq, flat: true )
         .ifEmpty { error "Cannot find matching FASTQ files: ${params.fastq}" }
         .set { raw_reads_ch, trim_input_ch } 
-    
+         
     // Generate FASTQC reports on raw reads
     FASTQC(raw_reads_ch, "raw")
-   
+ 
     // Use trimmomatic to trim reads to remove low quality reads and adapter sequences
     TRIM_READS( trim_input_ch )
         .set { trimmed_reads_ch }
@@ -62,6 +62,8 @@ workflow {
     // Generate FASTQC reports on trimmed reads
     FASTQC(trimmed_reads_ch, "trimmed")
     
+    // Run Salmon processes
+    RUN_SALMON()
 }
 
 /* 
@@ -69,43 +71,61 @@ workflow {
  * Download FASTA and GTF files
 */
 workflow DOWNLOAD_REFERENCES {
-    if (!fasta.exists() || !gtf.exists()) {
-        log.info "Downloading reference files to: ${fasta.parent}"
-        
-        // Download the FASTA file if it doesn't exist
-        if (!fasta.exists()) {
-            DOWNLOAD_FASTA()
-        }
-        
-        // Download the GTF file if it doesn't exist
-        if (!gtf.exists()) {
-            DOWNLOAD_GTF()
-        }
-    } else {
-        log.info "Both FASTA and GTF files already exist: ${params.fasta} and ${params.gtf}"
-    }
+    take:
+    fasta_url
+    gtf_url
+    
+    main:
+    // Retrieve transcript fasta
+    DOWNLOAD_FASTA(fasta_url)
+
+    // Retrieve transcript annotations file
+    DOWNLOAD_GTF(gtf_url)
+}
+
+/* Run Salmon tool
+*/ 
+workflow RUN_SALMON {
+    // Index the reference transcriptome
+    SALMON_INDEX()
+
+    SALMON_QUANT()
 }
 
 /// Processes
 process DOWNLOAD_FASTA {
-    output: 
-    path "grcm39.fa.gz" emit: fasta_ch
+    errorStrategy 'retry' 
+    maxRetries 2
     
+    input:
+    val(fasta_url)
+
+    output: 
+    path("*.fa.gz"), emit: fasta
+        
     script:
     """
-    mkdir -p ${fasta.parent}
-    wget -O grcm39.fa.gz ${fasta_url}
+    wget -O ${fasta_url.split("/")[-1]} ${fasta_url}
     """
+
+    
 }
 
 process DOWNLOAD_GTF {
+    errorStrategy 'retry'
+    maxRetries 2
+
+
+
+    input:
+    val(gtf_url)
+
     output: 
-    path "grcm39.gtf.gz" emit: gtf_ch
+    path("*.gtf.gz"), emit: annotation
 
     script:
     """
-    mkdir -p ${gtf.parent} 
-    wget -O grcm39.gtf.gz ${gtf_url}
+    wget -O ${gtf_url.split("/")[-1]} ${gtf_url}
     """
 }
 
@@ -114,9 +134,10 @@ process FASTQC {
     
     tag "FASTQC on ${read_type} reads for sample ${sample_id}"
     publishDir "${params.outdir}/fastqc", mode: 'copy'
+    
     input:
     tuple val(sample_id), path(reads)    
-    val read_type
+    val(read_type)
     
     output:
     path "${read_type}/${sample_id}"
@@ -127,24 +148,24 @@ process FASTQC {
     """
 }
 
-process MULTIQC {
-    // use docker container
-    // input:
-    // output:
-    // script:
-}
+// process MULTIQC {
+//     // use docker container
+//     // input:
+//     // output:
+//     // script:
+// }
 
 process TRIM_READS {
     // use docker container
     tags "TRIM_READS on $sample_id"
     publishDir "${params.outdir}/trimmomatic", mode: 'copy'
+    
     input: 
     tuple val(sample_id), path(reads)
 
     output:
-    tuple val(sample_id), path("${sample_id}_R1.fastq.gz") emit: trimmed_R1
-    tuple val(sample_id), path("${sample_id}_R2.fastq.gz") emit: trimmed_R2
-
+    tuple val(sample_id), path("${sample_id}_R1.fastq.gz"), emit: trimmed_R1
+    tuple val(sample_id), path("${sample_id}_R2.fastq.gz"), emit: trimmed_R2
 
     script:
     """
@@ -155,10 +176,45 @@ process TRIM_READS {
         ${sample_id}_R2_unpaired.fastq.gz \
         LEADING:3 TRAILING:3 SLIDINGWINDOW:4:15 MINLEN:36
     """
-
-    
 }
-process SALMON_QUANT {
-    //
 
+process SALMON_INDEX {
+    // pull docker container
+    input:
+    path(fasta)
+    
+    output:
+    path("index"), emit: index_ch 
+
+    script:
+    """
+    salmon index --threads 4 -t fasta -i index 
+    """
+}
+
+process SALMON_QUANT {
+    // use specified docker container
+
+    // need help with how to merge the counts together
+    publishDir "${params.outdir}/salmon_quant", mode: 'copy'
+
+    input:
+    path("index")
+    path("gtf") 
+    tuple val(sample_id), path(trimmed_R1), path(trimmed_R2)
+
+    output:
+    path(sample_id), emit: quant_ch
+
+    script:
+    """
+    salmon quant \
+    --threads 4 --libType A \
+    --index index \
+    --validateMappings \
+    --geneMap gtf \
+    --output ${sample_id} \
+    -1 ${trimmed_R1} \
+    -2 ${trimmed_R2}
+    """
 }
