@@ -56,7 +56,7 @@ workflow {
         .set { read_pairs_ch } 
          
     // Generate FASTQC reports on raw reads
-    FASTQC(read_pairs_ch, "raw")
+    FASTQC( read_pairs_ch, "raw" )
  
     // Use trimmomatic to trim reads to remove low quality reads and adapter sequences
     TRIM_READS( read_pairs_ch )
@@ -94,14 +94,7 @@ workflow RUN_SALMON {
     SALMON_QUANT()
 }
 
-/* Run Salmon tool
-*/ 
-workflow RUN_SALMON {
-    // Index the reference transcriptome
-    SALMON_INDEX()
-}
-
-/// Processes
+// Processes
 process DOWNLOAD_FASTA {
     errorStrategy 'retry' 
     maxRetries 2
@@ -140,7 +133,7 @@ process FASTQC {
     // Use docker container 
     
     tag "FASTQC on ${read_type} reads for sample ${sample_id}"
-    publishDir "${params.outdir}/fastqc", mode: 'copy'
+    publishDir "${params.outdir}/fastqc/${read_type}/${sample_id}", mode: 'copy'
     
     input:
     tuple val(sample_id), path(reads)    
@@ -151,7 +144,7 @@ process FASTQC {
 
     script:
     """
-    fastqc -o . -f fastq -q ${reads} 
+    fastqc -f fastq -q ${reads} 
     """
 }
 
