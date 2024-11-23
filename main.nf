@@ -51,7 +51,7 @@ workflow {
     
     // Initialize the read pair channel
     Channel
-        .fromFilePairs( params.fastq, flat: true )
+        .fromFilePairs( params.fastq, checkIfExists: true )
         .ifEmpty { error "Cannot find matching FASTQ files: ${params.fastq}" }
         .set { read_pairs_ch } 
          
@@ -62,7 +62,7 @@ workflow {
     TRIM_READS( read_pairs_ch )
 
     // Generate FASTQC reports on trimmed reads
-    FASTQC(TRIM_READS.out.trimmed_reads, "trimmed")
+    // FASTQC(TRIM_READS.out.trimmed_reads, "trimmed")
     
     // Run Salmon processes
     // RUN_SALMON()
@@ -129,9 +129,7 @@ process DOWNLOAD_GTF {
     """
 }
 
-process FASTQC {
-    // Use docker container 
-    
+process FASTQC {    
     tag "FASTQC on ${read_type} reads for sample ${sample_id}"
     publishDir "${params.outdir}/fastqc/${read_type}/${sample_id}", mode: 'copy'
     
@@ -149,29 +147,30 @@ process FASTQC {
 }
 
 process TRIM_READS {
-    // use docker container
-    tags "TRIM_READS on $sample_id"
+    tags "TRIM_READS on ${sample_id}"
     publishDir "${params.outdir}/trimmomatic", mode: 'copy'
     
     input: 
     tuple val(sample_id), path(reads)
 
     output:
-    tuple val(sample_id), path("${sample_id}_{1,2}.fastq.gz"), emit: trimmed_R1
-
+    tuple val(sample_id), path("${sample_id}_R{1,2}.trimmed.fastq.gz"), emit: trimmed_paired
+    tuple val(sample_id), path("${sample_id}_R{1,2}.unpaired.fastq.gz"), emit: trimmed_unpaired
+    
     script:
+    def (r1, r2) = reads
     """
-    trimmomatic PE -threads 4 ${reads[0]} ${reads[1]} \
-        ${sample_id}_R1.fastq.gz \
-        ${sample_id}_R1_unpaired.fastq.gz \
-        ${sample_id}_R2.fastq.gz \
-        ${sample_id}_R2_unpaired.fastq.gz \
+    trimmomatic PE -threads 4 \
+        $r1 $r2 \
+        ${sample_id}_R1.trimmed.fastq.gz \
+        ${sample_id}_R1.unpaired.fastq.gz \
+        ${sample_id}_R2.trimmed.fastq.gz \
+        ${sample_id}_R2.unpaired.fastq.gz \
         LEADING:3 TRAILING:3 SLIDINGWINDOW:4:15 MINLEN:36
     """
 }
 
 process SALMON_INDEX {
-    // pull docker container
     input:
     path(fasta)
     
@@ -185,8 +184,6 @@ process SALMON_INDEX {
 }
 
 process SALMON_QUANT {
-    // use specified docker container
-
     // need help with how to merge the counts together
     publishDir "${params.outdir}/salmon_quant", mode: 'copy'
 
