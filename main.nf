@@ -62,10 +62,10 @@ workflow {
     TRIM_READS( read_pairs_ch )
 
     // Generate FASTQC reports on trimmed reads
-    // FASTQC(TRIM_READS.out.trimmed_reads, "trimmed")
+    FASTQC(TRIM_READS.out.trimmed_reads, "trimmed")
     
     // Run Salmon processes
-    // RUN_SALMON()
+    RUN_SALMON()
 }
 
 /* 
@@ -88,10 +88,17 @@ workflow DOWNLOAD_REFERENCES {
 /* Run Salmon tool
 */ 
 workflow RUN_SALMON {
-    // Index the reference transcriptome
-    SALMON_INDEX()
+    take:
+    transcriptome_fasta
+    gtf
+    trimmed_fastq
+    index
+    
 
-    SALMON_QUANT()
+    // Index the reference transcriptome
+    SALMON_INDEX(transcriptome_fasta)
+
+    SALMON_QUANT(gtf, trimmed_fastq, index)
 }
 
 // Processes
@@ -147,7 +154,7 @@ process FASTQC {
 }
 
 process TRIM_READS {
-    tags "TRIM_READS on ${sample_id}"
+    tag "TRIM_READS on ${sample_id}"
     publishDir "${params.outdir}/trimmomatic", mode: 'copy'
     
     input: 
@@ -171,20 +178,20 @@ process TRIM_READS {
 }
 
 process SALMON_INDEX {
+    tag: "Creating Salmon index from ${transcriptome_fasta.baseName}"
     input:
-    path(fasta)
+    path(transcriptome_fasta)
     
     output:
-    path("index"), emit: index_ch 
+    path("salmon_index"), emit: index
 
     script:
     """
-    salmon index --threads 4 -t fasta -i index 
+    salmon index --threads 4 -t $transcriptomic_fasta -i index_ch
     """
 }
 
 process SALMON_QUANT {
-    // need help with how to merge the counts together
     publishDir "${params.outdir}/salmon_quant", mode: 'copy'
 
     input:
@@ -193,7 +200,7 @@ process SALMON_QUANT {
     tuple val(sample_id), path(trimmed_R1), path(trimmed_R2)
 
     output:
-    path(sample_id), emit: quant_ch
+    path(sample_id), emit: quant
 
     script:
     """
