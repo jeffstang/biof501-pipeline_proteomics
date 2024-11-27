@@ -98,7 +98,7 @@ workflow RUN_SALMON {
     // Index the reference transcriptome
     SALMON_INDEX(transcriptome_fasta)
 
-    SALMON_QUANT(gtf, trimmed_fastq, index)
+    SALMON_QUANT(index, gtf, trimmed_fastq)
 }
 
 // Processes
@@ -192,6 +192,7 @@ process SALMON_INDEX {
 }
 
 process SALMON_QUANT {
+    tag "Converting counts from ${sample_id}"
     publishDir "${params.outdir}/salmon_quant", mode: 'copy'
 
     input:
