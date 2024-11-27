@@ -178,7 +178,7 @@ process TRIM_READS {
 }
 
 process SALMON_INDEX {
-    tag: "Creating Salmon index from ${transcriptome_fasta.baseName}"
+    tag: "Creating Salmon index from ${transcriptome_fasta.name}"
     input:
     path(transcriptome_fasta)
     
