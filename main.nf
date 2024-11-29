@@ -267,21 +267,21 @@ process CREATE_TX2GENE {
 // Process salmon quant files and merges samples into a single matrix
 // This creates a txi object which has 3 data frames
 process TXIMPORT_PROCESS {
-    publishDir "${params.outdir}/tximport", mode: 'copy'
+    publishDir "${params.outdir}/tximport", mode: 'copy', overwrite: true
 
     input:
-    path 'results/salmon_quant/*'    
+    path quantified_gene_counts  
     path metadata_csv
     path tx2gene_tsv
     val output_prefix
 
     output:
-    path "${output_prefix}_txi.rds", emit: txi_object
+    path "${output_prefix}_txi.rds", emit: txi_object, optional:true
 
     script:
     """
-    Rscript ${workflow.projectDir}/bin/tximport.R \
-        salmon_quant \
+    tximport.R \
+        "$quantified_gene_counts" \
         $metadata_csv \
         $tx2gene_tsv \
         $output_prefix
