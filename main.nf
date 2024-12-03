@@ -52,8 +52,8 @@ workflow {
     TRIM_READS( read_pairs_ch )
 
     // Generate FASTQC reports on trimmed paired reads
-    //FASTQC.call(TRIM_READS.out.trimmed_paired, Channel.value('trimmed'))
-    
+    TRIMMED_FASTQC(TRIM_READS.out.trimmed_paired, "trimmed" )
+        
     // Run Salmon processes
     SALMON_INDEX( DOWNLOAD_REFERENCES.out.fasta )
     SALMON_QUANT( 
@@ -265,15 +265,16 @@ process CREATE_TX2GENE {
 }
 
 // Process salmon quant files and merges samples into a single matrix
-// This creates a txi object which has 3 data frames
+// This creates a txi object that contains abundance, counts, and transcript length information
+// Although limma-voom does not require $length, I added this for modularity in case
+// I wish to run DeSeq2 in the future
 process TXIMPORT_PROCESS {
     publishDir "${params.outdir}/tximport", mode: 'copy', overwrite: true
 
     input:
-    path quantified_gene_counts  
-    path metadata_csv
+    path quantified_gene_counts
     path tx2gene_tsv
-    val output_prefix
+    val  output_prefix
 
     output:
     path "${output_prefix}_txi.rds", emit: txi_object, optional:true
@@ -282,8 +283,23 @@ process TXIMPORT_PROCESS {
     """
     tximport.R \
         "$quantified_gene_counts" \
-        $metadata_csv \
         $tx2gene_tsv \
         $output_prefix
+    """
+}
+
+// This process runs the limma-voom package
+process LIMMA_VOOM_DEA {
+    publishDir "${params.outdir}/limma_voom", mode: "copy", overwrite: true
+    input:
+    path txi_input
+    path metadata
+    val  out_prefix
+
+    output:
+    path "${output_prefix}_"
+
+    script:
+    """
     """
 }
