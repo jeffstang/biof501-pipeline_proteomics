@@ -17,8 +17,19 @@ if (!file.exists(metadata_file)) stop("Metadata file does not exist")
 txi <- readRDS(txi_file)
 
 # Read in metadata of samples provided
-# Get the condition (usually some type of perturbation/treatment vs control)
 metadata <- read.csv(metadata_file, stringsAsFactors = FALSE)
+
+# Make sure that the metadata and counts matrix follow the exact order 
+# I made sure to order the counts matrix by the metadata
+# For readability, it's just easier to keep track of conditions if they are grouped together
+txi$counts <- txi$counts[, match(metadata$sample, colnames(txi$counts))]
+
+# Verify alignment
+if (!all(metadata$sample == colnames(txi$counts))) {
+  stop("Sample names in metadata and counts matrix do not match after reordering!")
+}
+
+# Get the condition (usually some type of perturbation/treatment vs control)
 condition <- factor(metadata$treatment)
 
 # Store the counts into a DGEList so that it can be filtered on design
