@@ -13,8 +13,8 @@
 */
 
 params.fastq = "$baseDir/data/raw/*{1,2}.fastq.gz"
-params.fasta = "$baseDir/data/reference/grcm39_transcript_transcript.fa.gz"
-params.gtf = "$baseDir/data/reference/grcm39_transcript_transcript.gtf.gz"
+params.fasta = "$baseDir/data/reference/grcm39_transcript.fa.gz"
+params.gtf = "$baseDir/data/reference/grcm39_transcript.gtf.gz"
 params.metadata_csv = "$baseDir/data/reference/metadata.csv" 
 params.outdir = "results"
 
@@ -50,9 +50,6 @@ workflow {
  
     // Use trimmomatic to trim reads to remove low quality reads and adapter sequences
     TRIM_READS( read_pairs_ch )
-
-    // Generate FASTQC reports on trimmed paired reads
-    TRIMMED_FASTQC(TRIM_READS.out.trimmed_paired, "trimmed" )
         
     // Run Salmon processes
     SALMON_INDEX( DOWNLOAD_REFERENCES.out.fasta )
@@ -81,13 +78,14 @@ workflow {
     // output, which is a single salmon counts matrix. 
     // The inputs for this process are the tximport object, the metadata, and the output prefix to name the CSV
     // The expected output is the top table of differentially expressed genes
+    txi_input = TXIMPORT_PROCESS.out.txi_object
     
     LIMMA_VOOM_DEA( 
-        TXIMPORT_PROCESS.out.txi_object,
+        txi_input,
         file(params.metadata_csv),
         "logFC_DEG"
     )
-    
+
 }
 
 /* 
@@ -289,8 +287,7 @@ process TXIMPORT_PROCESS {
     val  output_prefix
 
     output:
-    path "${output_prefix}_txi.rds", emit: txi_object, optional:true
-
+    path "${output_prefix}_txi.csv", emit: txi_object
     script:
     """
     tximport.R \

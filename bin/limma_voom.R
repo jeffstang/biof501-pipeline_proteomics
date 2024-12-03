@@ -14,18 +14,18 @@ if (!file.exists(txi_file)) stop("Salmon counts matrix does not exist")
 if (!file.exists(metadata_file)) stop("Metadata file does not exist")
 
 # Read in tximport object
-txi <- readRDS(txi_file)
+txi <- read.csv(txi_file)
 
 # Read in metadata of samples provided
-metadata <- read.csv(metadata_file, stringsAsFactors = FALSE)
+metadata <- read.csv(metadata_file, stringsAsFactors = FALSE, row.names = 1)
 
 # Make sure that the metadata and counts matrix follow the exact order 
 # I made sure to order the counts matrix by the metadata
 # For readability, it's just easier to keep track of conditions if they are grouped together
-txi$counts <- txi$counts[, match(metadata$sample, colnames(txi$counts))]
+txi <- txi[, match(metadata$SSR_ID, colnames(txi))]
 
 # Verify alignment
-if (!all(metadata$sample == colnames(txi$counts))) {
+if (!all(metadata$sample == colnames(txi))) {
   stop("Sample names in metadata and counts matrix do not match after reordering!")
 }
 
@@ -33,7 +33,7 @@ if (!all(metadata$sample == colnames(txi$counts))) {
 condition <- factor(metadata$treatment)
 
 # Store the counts into a DGEList so that it can be filtered on design
-y <- DGEList(txi$counts)
+y <- DGEList(txi)
 
 # Filter using the design information:
 design <- model.matrix(~condition, data = metadata)
