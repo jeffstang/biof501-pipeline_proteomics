@@ -65,17 +65,29 @@ workflow {
     // Create a tx2gene file from annotations GTF 
     CREATE_TX2GENE(DOWNLOAD_REFERENCES.out.annotation)
 
-    // Gather all salmon-processed samples 
+    // Gather all salmon-processed samples and define necessary inputs
     quant_dirs = SALMON_QUANT.out.quant.collect()
     tx2gene_input = CREATE_TX2GENE.out.tx2gene
     
     // Use tximport to merge and convert transcript IDs to gene names
+    // This will generate a gene by samples counts matrix
     TXIMPORT_PROCESS(
     quant_dirs,
-    file(params.metadata_csv),
     tx2gene_input,
     'salmon_counts'
     )
+
+    // Run differential expression analysis using limma-voom from tximport_process
+    // output, which is a single salmon counts matrix. 
+    // The inputs for this process are the tximport object, the metadata, and the output prefix to name the CSV
+    // The expected output is the top table of differentially expressed genes
+    
+    LIMMA_VOOM_DEA( 
+        TXIMPORT_PROCESS.out.txi_object,
+        file(params.metadata_csv),
+        "logFC_DEG"
+    )
+    
 }
 
 /* 
@@ -297,9 +309,13 @@ process LIMMA_VOOM_DEA {
     val  out_prefix
 
     output:
-    path "${output_prefix}_"
+    path "${output_prefix}_topTable.csv", emit: logFC_topTable
 
     script:
     """
+    limma_voom.R \
+        $txi_input \
+        $metadata \
+        $out_prefix
     """
 }
