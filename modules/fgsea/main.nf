@@ -7,10 +7,10 @@ process PATHWAY_ENRICHMENT {
     path database_of_interest
 
     output:
-    path "*.csv"
+    path "*.txt"
 
     script:
     """
-    ligand_enrichment_analysis.R ${top_table_input} ${database_of_interest}
+    ligand_enrichment_analysis.R $top_table_input $database_of_interest
     """
 }
