@@ -1,6 +1,7 @@
 # BIOF 501 Term Project: RNASeq workflow for differential expression and gene summarization 
 
 # Background and Rationale
+
 ## • include the what’s and why’s – also your aims
 ## • include any package dependencies that are required (bullet points are ok for this)
 ## • You can include your DAG here

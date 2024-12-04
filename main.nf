@@ -31,7 +31,15 @@ log.info """\
 fasta_url = "https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_mouse/release_M36/gencode.vM36.pc_transcripts.fa.gz"
 gtf_url = "https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_mouse/release_M36/gencode.vM36.basic.annotation.gtf.gz"
 
-//
+// import processes from modules required to run the pipeline
+include { DOWNLOAD_FASTA; DOWNLOAD_GTF }            from "./modules/download_ref"
+include { FASTQC as FASTQC_RAW }                    from "./modules/fastqc"
+include { FASTQC as FASTQC_TRIMMED }                from "./modules/fastqc"
+include { CREATE_TX2GENE }                          from "./modules/convert_tx2gene"
+include { SALMON_INDEX; SALMON_QUANT }              from "./modules/salmon"
+include { TXIMPORT_PROCESS }                        from "./modules/tximport"
+include { LIMMA_VOOM_DEA }                          from "./modules/diff_exp_analysis"
+
 // WORKFLOW: run main analysis pipeline
 //
 
@@ -46,13 +54,19 @@ workflow {
         .set { read_pairs_ch } 
          
     // Generate FASTQC reports on raw reads
-    FASTQC( read_pairs_ch, "raw" )
+    FASTQC_RAW( read_pairs_ch, "raw" )
  
     // Use trimmomatic to trim reads to remove low quality reads and adapter sequences
     TRIM_READS( read_pairs_ch )
+
+    // Generate FASTQC reports on trimmed reads
+    FASTQC_TRIMMED(TRIM_READS.out.trimmed_paired, "trimmed")
         
     // Run Salmon processes
+    // Index the fasta file
     SALMON_INDEX( DOWNLOAD_REFERENCES.out.fasta )
+    
+    // Run the main salmon command for quantifying transcripts 
     SALMON_QUANT( 
         SALMON_INDEX.out.idx, 
         DOWNLOAD_REFERENCES.out.annotation, 
@@ -90,7 +104,8 @@ workflow {
 
 /* 
  * Subworkflows:
- * Download FASTA and GTF files
+ * I grouped the processes for downloading FASTA and GTF files
+ * into one and called on DOWNLOAD_REFERENCES in the main workflow
 */
 workflow DOWNLOAD_REFERENCES {
     take:
@@ -107,212 +122,4 @@ workflow DOWNLOAD_REFERENCES {
     emit:
     fasta = DOWNLOAD_FASTA.out.fasta
     annotation = DOWNLOAD_GTF.out.annotation
-}
-
-// Processes:
-// This process downloads the fasta file
-process DOWNLOAD_FASTA {
-    errorStrategy 'retry' 
-    maxRetries 2
-    cache 'deep'
-    
-    input:
-    val(fasta_url)
-
-    output: 
-    path "*.fa.gz", emit: fasta
-                
-    script:
-    """
-    wget -O ${fasta_url.split("/")[-1]} ${fasta_url}
-    """    
-}
-
-// This process downloads the GTF annotation file
-process DOWNLOAD_GTF {
-    errorStrategy 'retry'
-    maxRetries 2
-    cache 'deep'
-
-    input:
-    val(gtf_url)
-
-    output: 
-    path "*.gtf.gz", emit: annotation
-
-    script:
-    """
-    wget -O ${gtf_url.split("/")[-1]} ${gtf_url}
-    """
-}
-
-// This process reads the fastq files and outputs the QC metrics from the fastqc tool
-process FASTQC {    
-    tag "FASTQC on ${read_type} reads for sample ${sample_id}"
-    publishDir "${params.outdir}/fastqc/${read_type}/${sample_id}", mode: 'copy'
-    
-    input:
-    tuple val(sample_id), path(reads)    
-    val(read_type)
-    
-    output:
-    path "*_fastqc.{zip,html}", emit: fastqc_reports
-
-    script:
-    """
-    fastqc -f fastq -q ${reads} 
-    """
-}
-
-// This is a cloned process of FASTQC that is used specifically to report 
-// the QC metrics after trimming the reads
-process TRIMMED_FASTQC {    
-    tag "FASTQC on ${read_type} reads for sample ${sample_id}"
-    publishDir "${params.outdir}/fastqc/${read_type}/${sample_id}", mode: 'copy'
-    
-    input:
-    tuple val(sample_id), path(reads)    
-    val(read_type)
-    
-    output:
-    path "*_fastqc.{zip,html}", emit: trimmed_fastqc_reports
-
-    script:
-    """
-    fastqc -f fastq -q ${reads} 
-    """
-}
-
-// Uses trimmomatic to trim the reads, it will process trimmed fastqs 
-// and a separate file for unpaired reads
-process TRIM_READS {
-    tag "TRIM_READS on ${sample_id}"
-    publishDir "${params.outdir}/trimmomatic/${sample_id}", mode: 'copy'
-    
-    input: 
-    tuple val(sample_id), path(reads)
-
-    output:
-    tuple val(sample_id), path("${sample_id}_R{1,2}.trimmed.fastq.gz"), emit: trimmed_paired
-    tuple val(sample_id), path("${sample_id}_R{1,2}.unpaired.fastq.gz"), emit: trimmed_unpaired
-    
-    script:
-    def (r1, r2) = reads
-    """
-    trimmomatic PE -threads 4 \
-        $r1 $r2 \
-        ${sample_id}_R1.trimmed.fastq.gz \
-        ${sample_id}_R1.unpaired.fastq.gz \
-        ${sample_id}_R2.trimmed.fastq.gz \
-        ${sample_id}_R2.unpaired.fastq.gz \
-        LEADING:3 TRAILING:3 SLIDINGWINDOW:4:15 MINLEN:36
-    """
-}
-
-// Indexes the fasta file so that it can be used for the salmon tool
-process SALMON_INDEX {
-    tag "Creating Salmon index from ${transcriptome_fasta.name}"
-    input:
-    path(transcriptome_fasta)
-    
-    output:
-    path "salmon_index", emit: idx
-
-    script:
-    """
-    salmon index --threads 4 -t $transcriptome_fasta -i salmon_index --gencode
-    """
-}
-
-// Processes the trimmed fastq files and sums up transcript and gene-level counts
-process SALMON_QUANT {
-    tag "Converting counts from ${sample_id}"
-    publishDir "${params.outdir}/salmon_quant", mode: 'copy'
-
-    input:
-    path index
-    path gtf_gz
-    tuple val(sample_id), path(reads)
-
-    output:
-    path(sample_id), emit: quant
-
-    script:
-    def (r1, r2) = reads
-    """
-    gunzip -c ${gtf_gz} > annotation.gtf
-    salmon quant \
-    --threads 4 --libType A \
-    --index $index \
-    --validateMappings \
-    --geneMap annotation.gtf \
-    --output ${sample_id} \
-    -1 ${r1} \
-    -2 ${r2}
-    rm annotation.gtf
-    """
-}
-
-// Create a transcript to gene annotation file that's tab-delimited
-// Used to convert transcript IDs to gene symbols
-process CREATE_TX2GENE {
-    input:
-    path gtf_gz
-
-    output:
-    path "tx2gene.tsv", emit: tx2gene
-    
-    script:
-    """
-    gunzip -c ${gtf_gz} | awk '\$3 == "gene" { 
-        match(\$0, /gene_id "[^"]+"/); 
-        gene_id = substr(\$0, RSTART+9, RLENGTH-10); 
-        match(\$0, /gene_name "[^"]+"/); 
-        gene_name = substr(\$0, RSTART+11, RLENGTH-12); 
-        print gene_id, gene_name; 
-    }' > tx2gene.tsv
-    """
-}
-
-// Process salmon quant files and merges samples into a single matrix
-// This creates a txi object that contains abundance, counts, and transcript length information
-// Although limma-voom does not require $length, I added this for modularity in case
-// I wish to run DeSeq2 in the future
-process TXIMPORT_PROCESS {
-    publishDir "${params.outdir}/tximport", mode: 'copy', overwrite: true
-
-    input:
-    path quantified_gene_counts
-    path tx2gene_tsv
-    val  output_prefix
-
-    output:
-    path "${output_prefix}_txi.csv", emit: txi_object
-    script:
-    """
-    tximport.R \
-        "$quantified_gene_counts" \
-        $tx2gene_tsv \
-        $output_prefix
-    """
-}
-
-// This process runs the limma-voom package
-process LIMMA_VOOM_DEA {
-    publishDir "${params.outdir}/limma_voom", mode: "copy", overwrite: true
-    input:
-    path txi_input
-    path metadata
-    val  out_prefix
-
-    output:
-    path "*_topTable.csv", emit: logFC_topTable
-
-    script:
-    """
-    limma_voom.R \
-        $txi_input \
-        $metadata \
-        $out_prefix
-    """
 }
