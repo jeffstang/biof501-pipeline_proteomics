@@ -120,10 +120,9 @@ workflow {
     // This will return a pathway enrichment ranked list of ligands based on differentially
     // expressed receptor genes
     PATHWAY_ENRICHMENT( 
-        top_table,
-        file(params.db)
+       top_table,
+       file(params.db)
     )
-
 }
 
 /* 
