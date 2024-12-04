@@ -1,0 +1,5 @@
+geo_accession,sex,treatment,SRR_ID,sample_type
+GSM7265443,Female,Control,SRR24360653.sub,biol_rep_1
+GSM7265449,Female,Control,SRR24360647.sub,biol_rep_2
+GSM7265453,Female,Il10,SRR24360643.sub,biol_rep_1
+GSM7265457,Female,Il10,SRR24360639.sub,biol_rep_2
