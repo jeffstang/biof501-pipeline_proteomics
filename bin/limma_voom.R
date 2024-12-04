@@ -14,10 +14,10 @@ if (!file.exists(txi_file)) stop("Salmon counts matrix does not exist")
 if (!file.exists(metadata_file)) stop("Metadata file does not exist")
 
 # Read in tximport object
-txi <- read.csv(txi_file)
+txi <- read.csv(txi_file, row.names = 1, header = TRUE)
 
 # Read in metadata of samples provided
-metadata <- read.csv(metadata_file, stringsAsFactors = FALSE, row.names = 1)
+metadata <- read.csv(metadata_file, stringsAsFactors = FALSE)
 
 # Make sure that the metadata and counts matrix follow the exact order 
 # I made sure to order the counts matrix by the metadata
