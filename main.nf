@@ -16,14 +16,17 @@ params.fastq = "$baseDir/data/raw/*{1,2}.fastq.gz"
 params.fasta = "$baseDir/data/reference/grcm39_transcript.fa.gz"
 params.gtf = "$baseDir/data/reference/grcm39_transcript.gtf.gz"
 params.metadata_csv = "$baseDir/data/reference/metadata.csv" 
+params.db = "$baseDir/data/reference/cellchatv2_mouseLRI.rda"
 params.outdir = "results"
 
 log.info """\
-        RNASeq Differential Analysis Pipeline
-        =====================================
+        RNASeq Differential Analysis and 
+        ===============================================
         FASTQ                    : ${params.fastq}
         Transcriptome FASTA      : ${params.fasta}
         Gene Annotations         : ${params.gtf}
+        Cell Chat DB v2          : ${params.db}
+        Sample Info Table        : ${params.metadata_csv}
         Results Directory        : ${params.outdir}
         """
         .stripIndent()
@@ -39,9 +42,10 @@ include { CREATE_TX2GENE }                          from "./modules/convert_tx2g
 include { SALMON_INDEX; SALMON_QUANT }              from "./modules/salmon"
 include { TXIMPORT_PROCESS }                        from "./modules/tximport"
 include { LIMMA_VOOM_DEA }                          from "./modules/diff_exp_analysis"
+include { ENHANCED_VOLCANO_PLOT }                   from "./modules/plot_enhancedVolcano"
+include {  }
 
 // WORKFLOW: run main analysis pipeline
-//
 
 workflow {
     // Check if reference files (FASTA and GTF exist), download if necessary:
