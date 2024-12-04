@@ -14,21 +14,21 @@
 - [References](#references)
 
 ## Background and Rationale
-Cellular communication is dictated by the release of molecules called ligands that bind to cellular surface receptors to illicit a response [1]. These ligand-receptor interactions (LRIs) can be deterministic of signalling pathway activity [2]. LRI-mediated cellular network research has been a popular area of study partly driven by recent advances in single-cell omics, however the volume of archival data available for bulk transcriptomic data remain superior and can help decipher [3]
+Cellular communication occurs through ligands binding to surface receptors, triggering responses and influencing signaling pathways [1, 2]. Research on ligand-receptor interactions (LRIs) has gained momentum with single-cell omics, which provide high-resolution insights into individual cell states [3]. However, bulk transcriptomic datasets, with their extensive clinical data from patient cohorts, remain valuable. Thus, there is a need for tools that complement single-cell studies by analyzing cellular networks in bulk transcriptomics [4].
 
 ### Aims
-Aim 1: To provide a generic 
+Aim 1: To provide a 
 
 ### Package Dependencies
 
 ### Workflow Overview
 The workflow includes the following steps:
 
-1. Download Reference files (FASTA and GTF)
+1. Download Reference files (FASTA, GTF)
 2. Preprocess raw fastq files (includes generating QC reports via `fastqc` and trimming the reads using `trimmomatic`)
 3. Count transcripts and generate count matrix using `salmon`
-4. Analyze differentially expressed genes (DGE) using `limma-voom`
-5. Provide insight on potential pathways relevant to significant DGEs using `fgsea`
+4. Preprocess and analyze differentially expressed genes (DGE) using `limma-voom` 
+5. We leverage `fgsea` and the example database to provide insight on ligand activity which can reflect on signalling pathway activity
 
 <details>
     <summary>You can include find the DAG workflow here</summary>
@@ -51,6 +51,7 @@ The workflow includes the following steps:
 ## Project directory structure
 <details>
     <summary> Click here to see the drop-down view of project directory in a tree-like format. </summary>
+
 ```bash
 ├── README.md
 ├── bin
@@ -201,7 +202,8 @@ The workflow includes the following steps:
 └── run.sh
 ```
 
-## Reference
-1. Kawahara M, Ueda H, Nagamune T. Engineering cytokine receptors to control cellular functions. Biochem Eng J 48(3), 283–294 (2010). 
+## References
+1. Zhou L, Wang X, Peng L, et al. SEnSCA: Identifying possible ligand-receptor interactions and its application in cell-cell communication inference. J Cell Mol Med 28, e18372 (2024).
 2. Armingol E, Officer A, Harismendy O, et al. Deciphering cell–cell interactions and communication from gene expression. Nat Rev Genet 22, 71–88 (2021).
-3. Villemin JP, Bassaganyas L, Pourquier D, et al. Inferring ligand-receptor cellular networks from bulk and spatial transcriptomic datasets with BulkSignalR. Nucleic Acids Res 51, 4726–44 (2023). 
+3. Lim J, Park C, Kim M, et al. Advances in single-cell omics and multiomics for high-resolution molecular profiling. Exp Mol Med 56, 515–526 (2024).
+4. Villemin JP, Bassaganyas L, Pourquier D, et al. Inferring ligand-receptor cellular networks from bulk and spatial transcriptomic datasets with BulkSignalR. Nucleic Acids Res 51, 4726–44 (2023). 
