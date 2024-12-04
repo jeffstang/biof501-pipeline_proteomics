@@ -306,7 +306,7 @@ process LIMMA_VOOM_DEA {
     val  out_prefix
 
     output:
-    path "${output_prefix}_topTable.csv", emit: logFC_topTable
+    path "*_topTable.csv", emit: logFC_topTable
 
     script:
     """

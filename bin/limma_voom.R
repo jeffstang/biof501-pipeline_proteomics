@@ -22,10 +22,10 @@ metadata <- read.csv(metadata_file, stringsAsFactors = FALSE, row.names = 1)
 # Make sure that the metadata and counts matrix follow the exact order 
 # I made sure to order the counts matrix by the metadata
 # For readability, it's just easier to keep track of conditions if they are grouped together
-txi <- txi[, match(metadata$SSR_ID, colnames(txi))]
+txi <- txi[, match(metadata$SRR_ID, colnames(txi))]
 
 # Verify alignment
-if (!all(metadata$sample == colnames(txi))) {
+if (!all(metadata$SRR_ID == colnames(txi))) {
   stop("Sample names in metadata and counts matrix do not match after reordering!")
 }
 
@@ -53,6 +53,6 @@ v <- voom(y, design)
 # Run limma:
 fit <- lmFit(v, design)
 fit <- eBayes(fit)
-top <- topTable(fit, coef=ncol(design))
+top <- topTable(fit, coef=ncol(design), number = nrow(fit))
 
-write.csv(top, file = paste0(output_prefix, "_topTable.csv"))
+write.csv(top, file = paste0(out_prefix, "_topTable.csv"))
