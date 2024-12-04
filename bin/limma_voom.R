@@ -56,7 +56,7 @@ fit <- eBayes(fit)
 top <- topTable(fit, coef=ncol(design), number = nrow(fit))
 
 # Order the table by most significant genes after multiple test correction
-top <- top[order(adj.P.Val), ]
+top <- top[order(top$adj.P.Val), ]
 
 # Write the top table to disk
 write.csv(top, file = paste0(out_prefix, "_topTable.csv"))
