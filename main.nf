@@ -37,6 +37,7 @@ gtf_url = "https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_mouse/release_M36
 // import processes from modules required to run the pipeline
 include { DOWNLOAD_FASTA; DOWNLOAD_GTF }            from "./modules/download_ref"
 include { FASTQC as FASTQC_RAW }                    from "./modules/fastqc"
+include { TRIM_READS }                              from "./modules/trim_reads"
 include { FASTQC as FASTQC_TRIMMED }                from "./modules/fastqc"
 include { CREATE_TX2GENE }                          from "./modules/convert_tx2gene"
 include { SALMON_INDEX; SALMON_QUANT }              from "./modules/salmon"
