@@ -14,7 +14,7 @@
 - [References](#references)
 
 ## Background and Rationale
-Cellular communication is dictated by the release of molecules called ligands that bind to cellular surface receptors to illicit a response [1]. These ligand-receptor interactions (LRIs) can be deterministic of signalling pathway activity [2].
+Cellular communication is dictated by the release of molecules called ligands that bind to cellular surface receptors to illicit a response [1]. These ligand-receptor interactions (LRIs) can be deterministic of signalling pathway activity [2]. LRI-mediated cellular network research has been a popular area of study partly driven by recent advances in single-cell omics, however the volume of archival data available for bulk transcriptomic data remain superior and can help decipher [3]
 
 ### Aims
 Aim 1: To provide a generic 
@@ -202,4 +202,6 @@ The workflow includes the following steps:
 ```
 
 ## Reference
-1. 
+1. Kawahara M, Ueda H, Nagamune T. Engineering cytokine receptors to control cellular functions. Biochem Eng J 48(3), 283–294 (2010). 
+2. Armingol E, Officer A, Harismendy O, et al. Deciphering cell–cell interactions and communication from gene expression. Nat Rev Genet 22, 71–88 (2021).
+3. Villemin JP, Bassaganyas L, Pourquier D, et al. Inferring ligand-receptor cellular networks from bulk and spatial transcriptomic datasets with BulkSignalR. Nucleic Acids Res 51, 4726–44 (2023). 
