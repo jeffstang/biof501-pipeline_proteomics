@@ -1,14 +1,48 @@
-# BIOF 501 Term Project: RNASeq workflow for differential expression and gene summarization 
+# BIOF 501 Term Project: RNASeq workflow for differential expression and pathway enrichment 
+
+## Table of Content:
+- [Background and Rationale](#background-and-rationale)
+    - [Aims](#aims)
+    - [Package Dependencies](#package-dependencies)
+    - [Workflow Overview](#workflow-overview)
+- [Usage](#usage)
+    - [Installation](#installation)
+    - [Step 1: Preprocess FASTQ files](#step-1-preprocess-fastq-files)
+    - [Step 2: Quantify reads using Salmon](#step-2-quantify-reads)
+    - [Step 3: Perform differential expression analysis](#step-3-perform-differential-expression-analysis)
+    - [Step 4: Perform pathway enrichment analysis](#step-4-perform-pathway-enrichment-analysis)
+- [References](#references)
 
 ## Background and Rationale
-• include the what’s and why’s – also your aims
+Cellular communication is dictated by the release of molecules called ligands that bind to cellular surface receptors to illicit a response [1]. These ligand-receptor interactions (LRIs) can be deterministic of signalling pathway activity [2].
 
-• include any package dependencies that are required (bullet points are ok for this)
+### Aims
+Aim 1: To provide a generic 
 
-• You can include your DAG here
+### Package Dependencies
+
+### Workflow Overview
+The workflow includes the following steps:
+
+1. Download Reference files (FASTA and GTF)
+2. Preprocess raw fastq files (includes generating QC reports via `fastqc` and trimming the reads using `trimmomatic`)
+3. Count transcripts and generate count matrix using `salmon`
+4. Analyze differentially expressed genes (DGE) using `limma-voom`
+5. Provide insight on potential pathways relevant to significant DGEs using `fgsea`
+
+<details>
+    <summary>You can include find the DAG workflow here</summary>
+![Workflow DAG](path/to/DAG-image.png)
 
 ## Usage
-Make sure you format everything so that step by step usage details are included. ## If we can’t run your pipeline then we can’t give you marks.
+### Installation
+### 1.
+### 2.
+### 3.
+
+• Make sure you format everything so that step by step usage details are included. 
+
+## If we can’t run your pipeline then we can’t give you marks.
 
 • Installation (if necessary) including any datasets that are to be used if they are not provided (i.e. how to download them using wget or curl – exact paths need to be specified and the data must be accessible)
 
@@ -166,3 +200,6 @@ Make sure you format everything so that step by step usage details are included.
 │       └── salmon_counts_txi.csv
 └── run.sh
 ```
+
+## Reference
+1. 
