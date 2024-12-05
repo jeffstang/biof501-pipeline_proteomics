@@ -6,8 +6,8 @@
     - [Package Dependencies](#package-dependencies)
     - [Workflow Overview](#workflow-overview)
 - [Usage](#usage)
-    - [Installation](#installation-and-overview)
-    - [Initial Project Directory Structure](#initial-project-directory-structure)
+    - [Installation](#installation)
+    - [Project Structure and Overview](#project-structure-and-overview)
     - [Step 1: Preprocess FASTQ files](#step-1-preprocess-fastq-files)
     - [Step 2: Quantify reads using Salmon](#step-2-quantify-reads)
     - [Step 3: Perform differential expression analysis](#step-3-perform-differential-expression-analysis)
@@ -24,16 +24,15 @@ A popular method in transcriptomics is the gene set enrichment analysis (GSEA) a
   
 **Aim 1 -** To provide an end-to-end workflow solution for analyzing changes in gene expression starting from raw **fastq** files.
 
-**Aim 2 -** To explore gene set enrichment analysis in the context of LRIs described by pre-existing database annotations. A **key assumption** of note is that we receptor gene exprression changes can characterize the ligand and sufficiently describes the "pathway" of ligand activity.  
+**Aim 2 -** To explore gene set enrichment analysis in the context of LRIs described by pre-existing database annotations. A **key assumption** of note is that receptor gene expression changes can be indicative of ligand binding and sufficiently describes the ligand activity (in the context of fgsea, the "pathway").  
 
 ### Workflow Overview
 The workflow includes the following steps:
-
 1. Retrieve reference files from ENCODE
-2. Preprocess raw fastq files  (provides quality metrics from `fastqc` pre- and post-trimming and trims reads using `trimmomatic`)
-3. Count transcripts and generate count matrix using `salmon`
-4. Preprocess and analyze differentially expressed genes (DGE) using `limma-voom` 
-5. We leverage `fgsea` and the example database to provide insight on ligand activity which can reflect on signalling pathway activity
+2. Preprocess raw fastq files - provides quality metrics from `fastqc` [[13](#references)] pre- and post-trimming and trims reads using `trimmomatic` [[14](#references)]
+3. Count transcripts and generate count matrix using `salmon` [[15](#references)]
+4. Preprocess and analyze differentially expressed genes (DGE) using `limma-voom` [[16](#references)] 
+5. We leverage `fgsea` [[17](#references)] and the example database to provide insight on ligand activity which can reflect on signalling pathway activity
 
 Below is a workflow diagram:
 
@@ -87,37 +86,37 @@ graph TD
     style DEA fill:#90CAF9,stroke:#1E88E5,stroke-width:2px
     style VOLCANO fill:#CE93D8,stroke:#8E24AA,stroke-width:2px
     style PATHWAY fill:#CE93D8,stroke:#8E24AA,stroke-width:2px
-
 ```
 
 ### Package Dependencies
-#### List of docker images used (see[ nextflow.config](https://github.com/jeffstang/biof501-term_project/blob/main/nextflow.config)):
+All tools used in the workflow have specified docker containers that are **automatically pulled when launching the workflow**. Please see below for tools, version tags, and the docker image used. 
+#### List of Docker Images used (see[ nextflow.config](https://github.com/jeffstang/biof501-term_project/blob/main/nextflow.config)):
 ```
-edgeR
+edgeR 4.0.2
 quay.io/biocontainers/bioconductor-edger:4.0.2--r43hf17093f_0
 
-Enhanced Volcano
+EnhancedVolcano 1.20.0 
 quay.io/biocontainers/bioconductor-enhancedvolcano:1.20.0--r43hdfd78af_0
 
-FastQC
+FastQC 0.12.1
 staphb/fastqc:0.12.1
 
-fgsea
+fgsea 1.28.0
 quay.io/biocontainers/bioconductor-fgsea:1.28.0--r43hf17093f_1 
 
-salmon
+salmon 1.10.3
 combinelab/salmon:1.10.3
 
-trimmomatic
+trimmomatic 0.36
 quay.io/biocontainers/trimmomatic:0.36--4                 
 
-tximport
+tximport 1.26.0
 quay.io/biocontainers/bioconductor-tximport:1.26.0--r42hdfd78af_0
 ```
 
 ## Usage
 ### Installation
-The following versions of software were installed following the [Nextflow Docs]()
+The following versions of software were installed following the [Nextflow Docs](https://www.nextflow.io/docs/latest/install.html)
 ```
 bash-5.2.21
 docker-26.1.1
@@ -130,13 +129,12 @@ If initial setup requirements are met, please clone this GitHub Repository:
 git clone https://github.com/jeffstang/biof501-term_project.git
 ```
 
-### Initial Project Directory Structure
+### Project Structure and Overview
 Upon cloning, the repository should come with a set of base files.
 <details>
     <summary> Click here to see a tree overview of the overall directory structure </summary>
 
 ```bash
-tree biof501-term_project
 ├── README.md
 ├── bin
 │   ├── ligand_enrichment_analysis.R
@@ -178,27 +176,61 @@ tree biof501-term_project
 │   └── tximport
 │       └── main.nf
 ├── nextflow.config
-├── results
-└── run.sh
+└── results
+
 ```
 </details>
 
-Here is a checklist and details on important files:
+#### Here is a checklist and details on important files (and their relative paths) needed to run this demo:
+`data/reference`:
 
-- `data/reference`
-    - `metadata.csv`: contains information such as different IDs, sex, and treatments for the samples used for this tutorial
-    - `cellchatv2_mouseLRI.rda`: 
-- 
+- `metadata.csv`: contains information such as different IDs, sex, and treatments for the samples used for this demo. For this demo I selected 4 samples to subsample:
 
+```
+geo_accession,sex,treatment,SRR_ID,sample_type
+GSM7265443,Female,Control,SRR24360653.sub,biol_rep_1
+GSM7265449,Female,Control,SRR24360647.sub,biol_rep_2
+GSM7265453,Female,Il10,SRR24360643.sub,biol_rep_1
+GSM7265457,Female,Il10,SRR24360639.sub,biol_rep_2
+```
+- `cellchatv2_mouseLRI.rda`: CellChatDB v2 LRI annotations in an R Data File. When read in, it is a list of ligands and their corresponding list of receptors (list of lists).
+
+- `CellChatDB_preprocess.R`: not covered in this demo but is an Rscript provided that details how the database was cleaned up and transformed. 
+
+`data/raw`:
+
+- The following fastq files are subsampled versions of **raw paired-end `fastq` files** initially downloaded from the Sequence Read Archive (SRA) of the following [BioProject](https://www.ncbi.nlm.nih.gov/bioproject/PRJNA964442). These are archived  transcriptomics sequencing results for mouse samples exposed to two ligand moleculars to stimulate an immune response, a control group, and a treatment group that combines 1 ligand with a drug that blocks activity of the ligands, measured across 3 time points (n=20). For this purpose of this demo, I selected 2 samples from control and 2 exposed to only IL-10. See `metadata.csv` for further details.
+- The original raw fastq were around 1.7 G per read file. These reads were subsampled using `seqtk`. For paired-end reads, it is recommended to set a seed to ensure that the pairing is kept. I set seed = 100 and subsampled on 1 million reads.
+
+<details> 
+    <summary> Click here to see an example of how one fastq was generated. </summary>
+
+```bash
+seqtk sample -s100 SRR24360639_1.fastq.gz 1000000 | gzip > SRR24360639.sub_1.fastq.gz
+```
+</details>
+<br> 
+
+`bin` is a directory that contains all Rscripts which the processes use:
+- `tximport.R`
+- `limma_voom.R`
+- `plot_enhancedVolcano.R`   
+- `ligand_enrichment_analysis.R`
+
+`modules`: a directory of process definitions (placed into subdirectories) that are called into the main workflow script as detailed by the [Nextflow docs](https://www.nextflow.io/docs/latest/module.html).
+
+`main.nf`: the main workflow script that will run the entire pipeline.
+
+**Run the pipeline:**
+```bash
+cd ./biof501-term_project
+nextflow run main.nf
+```
 ### Step 1: Preprocess FASTQ files
 ### Step 2: Quantify reads using Salmon
 ### Step 3: Perform differential expression analysis
 ### Step 4: Perform pathway enrichment analysis
 ### Expected final results directory
-
-• Installation (if necessary) including any datasets that are to be used if they are not provided (i.e. how to download them using wget or curl – exact paths need to be specified and the data must be accessible)
-
-• Exact step by step usage with descriptive comments on what action is being performed in each step
 
 ## References
 [1] Zhou L, Wang X, Peng L, et al. SEnSCA: Identifying possible ligand-receptor interactions and its application in cell-cell communication inference. J Cell Mol Med 28, e18372 (2024).
@@ -224,3 +256,13 @@ Here is a checklist and details on important files:
 [11] Browaeys R, Saelens W, & Saeys Y. NicheNet: modeling intercellular communication by linking ligands to target genes. Nat Methods 17, 159–162 (2020).
 
 [12] Jin, S., Plikus, M.V. & Nie, Q. CellChat for systematic analysis of cell–cell communication from single-cell transcriptomics. Nat Protoc (2024).
+
+[13] fastqc
+
+[14] trimmomatic
+
+[15] salmon
+
+[16] limma
+
+[17] fgsea
