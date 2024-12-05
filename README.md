@@ -41,7 +41,7 @@ graph TD
         TRIM --> SALMON_QUANT[SALMON_QUANT: Quantify transcripts using Salmon]
         SALMON_QUANT --> TXIMPORT[TXIMPORT_PROCESS: Merge all salmon results at the gene-level to produce a counts matrix]
         TXIMPORT --> DEA[LIMMA_VOOM_DEA: Run differential expression analysis]
-        DEA --> VOLCANO[ENHANCED_VOLCANO_PLOT: Generate a "publication ready" volcano plot to show DGEs]
+        DEA --> VOLCANO[ENHANCED_VOLCANO_PLOT: Generate a volcano plot to show DGEs]
         DEA --> PATHWAY[PATHWAY_ENRICHMENT: Perform pathway enrichment analysis and get a rank list of ligands represented by LRI-annotated differentially expressed genes]
     end
 
