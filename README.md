@@ -8,6 +8,7 @@
 - [Usage](#usage)
     - [Installation](#installation)
     - [Project Structure and Overview](#project-structure-and-overview)
+    - [Quickstart](#quickstart)
     - [Step 1: Preprocess FASTQ files](#step-1-preprocess-fastq-files)
     - [Step 2: Quantify reads using Salmon](#step-2-quantify-reads)
     - [Step 3: Perform differential expression analysis](#step-3-perform-differential-expression-analysis)
@@ -31,7 +32,7 @@ The workflow includes the following steps:
 1. Retrieve reference files from ENCODE
 2. Preprocess raw fastq files - provides quality metrics from `fastqc` [[13](#references)] pre- and post-trimming and trims reads using `trimmomatic` [[14](#references)]
 3. Count transcripts and generate count matrix using `salmon` [[15](#references)]
-4. Preprocess and analyze differentially expressed genes (DGE) using `limma-voom` [[16](#references)] 
+4. Preprocess and analyze differentially expressed genes (DEGs) using `limma-voom` [[16](#references)] 
 5. We leverage `fgsea` [[17](#references)] and the example database to provide insight on ligand activity which can reflect on signalling pathway activity
 
 Below is a workflow diagram:
@@ -45,7 +46,7 @@ graph TD
         TRIM --> SALMON_QUANT[SALMON_QUANT: Quantify transcripts using Salmon]
         SALMON_QUANT --> TXIMPORT[TXIMPORT_PROCESS: Merge all salmon results at the gene-level to produce a counts matrix]
         TXIMPORT --> DEA[LIMMA_VOOM_DEA: Run differential expression analysis]
-        DEA --> VOLCANO[ENHANCED_VOLCANO_PLOT: Generate a volcano plot to show DGEs]
+        DEA --> VOLCANO[ENHANCED_VOLCANO_PLOT: Generate a volcano plot to show DEGs]
         DEA --> PATHWAY[PATHWAY_ENRICHMENT: Perform pathway enrichment analysis and get a rank list of ligands represented by LRI-annotated differentially expressed genes]
     end
 
@@ -181,7 +182,9 @@ Upon cloning, the repository should come with a set of base files.
 ```
 </details>
 
-#### Here is a checklist and details on important files (and their relative paths) needed to run this demo:
+#### Overview
+Here is a checklist and overview of important initial files in the project directory (and their relative paths) needed to run this demo along with descriptions of their origin:
+
 `data/reference`:
 
 - `metadata.csv`: contains information such as different IDs, sex, and treatments for the samples used for this demo. For this demo I selected 4 samples to subsample:
@@ -193,17 +196,17 @@ GSM7265449,Female,Control,SRR24360647.sub,biol_rep_2
 GSM7265453,Female,Il10,SRR24360643.sub,biol_rep_1
 GSM7265457,Female,Il10,SRR24360639.sub,biol_rep_2
 ```
-- `cellchatv2_mouseLRI.rda`: CellChatDB v2 LRI annotations in an R Data File. When read in, it is a list of ligands and their corresponding list of receptors (list of lists).
+- `cellchatv2_mouseLRI.rda`: CellChatDB v2 LRI annotations in an R Data File. When read in, it is a list of ligands and their corresponding list of receptors (in a list of lists format).
 
-- `CellChatDB_preprocess.R`: not covered in this demo but is an Rscript provided that details how the database was cleaned up and transformed. 
+- `CellChatDB_preprocess.R`: **not covered in this demo** but in case there is interest, this is an Rscript details how the database was retrieved, cleaned up and transformed. 
 
 `data/raw`:
 
-- The following fastq files are subsampled versions of **raw paired-end `fastq` files** initially downloaded from the Sequence Read Archive (SRA) of the following [BioProject](https://www.ncbi.nlm.nih.gov/bioproject/PRJNA964442). These are archived  transcriptomics sequencing results for mouse samples exposed to two ligand moleculars to stimulate an immune response, a control group, and a treatment group that combines 1 ligand with a drug that blocks activity of the ligands, measured across 3 time points (n=20). For this purpose of this demo, I selected 2 samples from control and 2 exposed to only IL-10. See `metadata.csv` for further details.
-- The original raw fastq were around 1.7 G per read file. These reads were subsampled using `seqtk`. For paired-end reads, it is recommended to set a seed to ensure that the pairing is kept. I set seed = 100 and subsampled on 1 million reads.
+- The following fastq files are subsampled versions of **raw paired-end `fastq` files** initially downloaded from the Sequence Read Archive (SRA) of the following [BioProject](https://www.ncbi.nlm.nih.gov/bioproject/PRJNA964442). These are archived  transcriptomics sequencing results for mouse samples exposed to one of two ligand moleculars to stimulate an immune response, a control group, and a treatment group that combines 1 ligand with a drug that blocks activity of the ligands, measured across 3 time points (n=20). For this purpose of this demo, I selected 2 samples from control and 2 exposed to only IL-10. See `metadata.csv` for further details.
+- The original raw fastq were around 1.7 G per read file. These reads were subsampled as mentioned above using `seqtk`. For paired-end reads, it is recommended in the documentation to set a seed to ensure that the pairing is kept. I set seed = 100 and subsampled on 1 million reads.
 
 <details> 
-    <summary> Click here to see an example of how one fastq was generated. </summary>
+    <summary> Click here to see an example of how one fastq was generated using seqtk v1.4: </summary>
 
 ```bash
 seqtk sample -s100 SRR24360639_1.fastq.gz 1000000 | gzip > SRR24360639.sub_1.fastq.gz
@@ -221,11 +224,26 @@ seqtk sample -s100 SRR24360639_1.fastq.gz 1000000 | gzip > SRR24360639.sub_1.fas
 
 `main.nf`: the main workflow script that will run the entire pipeline.
 
-**Run the pipeline:**
+`results/`: the output directory where all processes instructed to write the outputs will go. The expected output are put into directories name after the process or tool that was used:
+- `fastqc/`
+- `ligand_enrichment/`
+- `limma_voom/`
+- `salmon_quant/`
+- `trimmomatic/`
+- `tximport/`
+- `volcano_plot/`
+
+## Quickstart
+#### Run the pipeline:
+To run the pipeline, make sure to be in the project directory. Then, run the `main.nf` as shown below.
 ```bash
 cd ./biof501-term_project
 nextflow run main.nf
 ```
+This will run the entire workflow and a launch log will be displayed detailing the title of the workflow, some required inputs, and a list of processes it will run. Once a process is completed, it will show a checkmark to the right as shown below:
+
+![Command Prompt Display](./assets/nextflow-startup.png)
+
 ### Step 1: Preprocess FASTQ files
 ### Step 2: Quantify reads using Salmon
 ### Step 3: Perform differential expression analysis
