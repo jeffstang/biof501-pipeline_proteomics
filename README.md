@@ -14,12 +14,34 @@
 - [References](#references)
 
 ## Background and Rationale
-Cellular communication occurs through ligands binding to surface receptors, triggering responses and influencing signaling pathways [[1](#references), [2](#references)]. Research on ligand-receptor interactions (LRIs) has gained momentum with single-cell omics, which provide high-resolution insights into individual cell states [[3](#references)]. However, bulk transcriptomic datasets, with their extensive clinical data from patient cohorts, remain valuable. Thus, there is a need for tools that complement single-cell studies by analyzing cellular networks in bulk transcriptomics [[4](#references)].
+Cellular communication occurs through ligands binding to surface receptors, influencing signaling pathways that trigger phenotypic responses [[1](#references), [2](#references)]. Research on ligand-receptor interactions (LRIs) has gained momentum with single-cell omics, which provide high-resolution insights into individual cell states [[3](#references)]. However, bulk transcriptomic datasets, with their extensive clinical data from patient cohorts, remain valuable. Thus developing tools that complement single-cell studies using bulk transcriptomics to characterize cellular networks remain relevant [[4](#references)].
+
+As omics technologies advance, complexity of data generated increase [[5](#references)]. In combination with complexity, rapid-evolving terminologies further create variability and barriers for reproducibility when leveraging these publicly available archival data sets[[6](#references)].  
 
 ### Aims
 Aim 1: To provide a 
 
 ### Package Dependencies
+#### List of docker images pulled by tool:
+```
+edgeR
+quay.io/biocontainers/bioconductor-edger:4.0.2--r43hf17093f_0
+
+Enhanced Volcano
+quay.io/biocontainers/bioconductor-enhancedvolcano:1.20.0--r43hdfd78af_0
+
+FastQC
+staphb/fastqc:0.12.1
+
+fgsea
+quay.io/biocontainers/bioconductor-fgsea:1.28.0--r43hf17093f_1 
+
+trimmomatic
+quay.io/biocontainers/trimmomatic:0.36--4                 
+
+tximport
+quay.io/biocontainers/bioconductor-tximport:1.26.0--r42hdfd78af_0
+```
 
 ### Workflow Overview
 The workflow includes the following steps:
@@ -87,13 +109,20 @@ graph TD
 </details>
 
 ## Usage
-### Installation
+### Base Installation Overview and Versions
+```
+bash-5.2.21
+docker-26.1.1
+git-2.43.0
+nextflow-24.10.0
+open-jdk-17.0.10
+```
+
 ### Step 1: Preprocess FASTQ files
 ### Step 2: Quantify reads using Salmon
 ### Step 3: Perform differential expression analysis
 ### Step 4: Perform pathway enrichment analysis
-
-## If we can’t run your pipeline then we can’t give you marks.
+### Expected final results directory
 
 • Installation (if necessary) including any datasets that are to be used if they are not provided (i.e. how to download them using wget or curl – exact paths need to be specified and the data must be accessible)
 
@@ -108,6 +137,10 @@ graph TD
 [3] Lim J, Park C, Kim M, et al. Advances in single-cell omics and multiomics for high-resolution molecular profiling. Exp Mol Med 56, 515–526 (2024).
 
 [4] Villemin JP, Bassaganyas L, Pourquier D, et al. Inferring ligand-receptor cellular networks from bulk and spatial transcriptomic datasets with BulkSignalR. Nucleic Acids Res 51, 4726–44 (2023). 
+
+[5] Di Tommaso P, Chatzou M, Floden E, et al. Nextflow enables reproducible computational workflows. Nat Biotechnol 35, 316–319 (2017).
+
+[6] Ghosh, D. & Mersha, T. B. Publicly available cytokine data: Limitations and opportunities. J Allergy and Clin Immunol 150, 1053–1056 (2022). 
 
 ## Initial Project directory structure
 <details>
