@@ -2,11 +2,12 @@
 
 ## Table of Contents:
 - [Background and Rationale](#background-and-rationale)
-    - [Aims](#aims)
+    - [Objective and Aims](#objective-and-aims)
     - [Package Dependencies](#package-dependencies)
     - [Workflow Overview](#workflow-overview)
 - [Usage](#usage)
-    - [Installation Overview](#installation-overview)
+    - [Installation](#installation-and-overview)
+    - [Initial Project Directory Structure](#initial-project-directory-structure)
     - [Step 1: Preprocess FASTQ files](#step-1-preprocess-fastq-files)
     - [Step 2: Quantify reads using Salmon](#step-2-quantify-reads)
     - [Step 3: Perform differential expression analysis](#step-3-perform-differential-expression-analysis)
@@ -14,39 +15,16 @@
 - [References](#references)
 
 ## Background and Rationale
-Cellular communication occurs through ligands binding to surface receptors, influencing signaling pathways that trigger phenotypic responses [[1](#references), [2](#references)]. Research on ligand-receptor interactions (LRIs) has gained momentum with single-cell omics, which provide high-resolution insights into individual cell states [[3](#references)]. However, bulk transcriptomic datasets, with their extensive clinical data from patient cohorts, remain valuable. Thus developing tools that complement single-cell studies using bulk transcriptomics to characterize cellular networks remain relevant [[4](#references)].
+Cellular communication occurs through ligands binding to surface receptors, influencing signaling pathways that trigger phenotypic responses which reflect on cell states and/or disease progression [[1](#references), [2](#references)]. Research on ligand-receptor interactions (LRIs) has gained momentum with single-cell (sc-) omics, which provide high-resolution insights into individual cell states [[3](#references)]. However, the volume of bulk transcriptomic datasets, complemented by extensive clinical data available, compared to sc-omics provide a valuable yet under-utilized resource [[4](#references)]. Thus tooling using bulk transcriptomics to characterize cellular networks can complement single-cell studies [[5](#references)]. 
 
-As omics technologies advance, complexity of data generated increase [[5](#references)]. In combination with complexity, rapid-evolving terminologies further create variability and barriers for reproducibility when leveraging these publicly available archival data sets[[6](#references)].  
+As omics technologies advance, complexity of data generated increase [[6](#references)]. In combination with complexity, rapidly-evolving terminologies, data quality and reliability, and lack of supporting documentation further create variability and barriers for reproducibility when leveraging publicly available archival data sets [[7](#references)]. 
 
-### Aims:
-**Aim 1 -** To provide a reproducible end-to-end workflow to analyze gene expression starting from raw fastq files.
+### Objective and Aims:
+A popular method in transcriptomics is the gene set enrichment analysis (GSEA) approach which enables identification of activation or repression of gene sets that share common biology and catalogued into molecular pathways [[8](#references)]. With more LRI databases emerging [[9](#references), [10](#references), [11](#references), [12](#references)], curation and validation of these potential annotations become important. We hypothesize that by repurposing GSEA for LRI annotations, we can validate discovery-based LRI methodologies.
+  
+**Aim 1 -** To provide an end-to-end workflow solution for analyzing changes in gene expression starting from raw **fastq** files.
 
-**Aim 2 -** To explore gene set enrichment analysis in the context of LRIs characterized by pre-existing database annotations.
-
-### Package Dependencies
-#### List of docker images used (see[ nextflow.config](https://github.com/jeffstang/biof501-term_project/blob/main/nextflow.config)):
-```
-edgeR
-quay.io/biocontainers/bioconductor-edger:4.0.2--r43hf17093f_0
-
-Enhanced Volcano
-quay.io/biocontainers/bioconductor-enhancedvolcano:1.20.0--r43hdfd78af_0
-
-FastQC
-staphb/fastqc:0.12.1
-
-fgsea
-quay.io/biocontainers/bioconductor-fgsea:1.28.0--r43hf17093f_1 
-
-salmon
-combinelab/salmon:1.10.3
-
-trimmomatic
-quay.io/biocontainers/trimmomatic:0.36--4                 
-
-tximport
-quay.io/biocontainers/bioconductor-tximport:1.26.0--r42hdfd78af_0
-```
+**Aim 2 -** To explore gene set enrichment analysis in the context of LRIs described by pre-existing database annotations. A **key assumption** of note is that we receptor gene exprression changes can characterize the ligand and sufficiently describes the "pathway" of ligand activity.  
 
 ### Workflow Overview
 The workflow includes the following steps:
@@ -111,10 +89,34 @@ graph TD
     style PATHWAY fill:#CE93D8,stroke:#8E24AA,stroke-width:2px
 
 ```
-</details>
+
+### Package Dependencies
+#### List of docker images used (see[ nextflow.config](https://github.com/jeffstang/biof501-term_project/blob/main/nextflow.config)):
+```
+edgeR
+quay.io/biocontainers/bioconductor-edger:4.0.2--r43hf17093f_0
+
+Enhanced Volcano
+quay.io/biocontainers/bioconductor-enhancedvolcano:1.20.0--r43hdfd78af_0
+
+FastQC
+staphb/fastqc:0.12.1
+
+fgsea
+quay.io/biocontainers/bioconductor-fgsea:1.28.0--r43hf17093f_1 
+
+salmon
+combinelab/salmon:1.10.3
+
+trimmomatic
+quay.io/biocontainers/trimmomatic:0.36--4                 
+
+tximport
+quay.io/biocontainers/bioconductor-tximport:1.26.0--r42hdfd78af_0
+```
 
 ## Usage
-### Installation Overview
+### Installation
 The following versions of software were installed following the [Nextflow Docs]()
 ```
 bash-5.2.21
@@ -123,38 +125,15 @@ git-2.43.0
 nextflow-24.10.0
 open-jdk-17.0.10
 ```
-After initial setup requirements are met, please clone this GitHub Repository:
+If initial setup requirements are met, please clone this GitHub Repository:
 ```
 git clone https://github.com/jeffstang/biof501-term_project.git
 ```
 
-### Step 1: Preprocess FASTQ files
-### Step 2: Quantify reads using Salmon
-### Step 3: Perform differential expression analysis
-### Step 4: Perform pathway enrichment analysis
-### Expected final results directory
-
-• Installation (if necessary) including any datasets that are to be used if they are not provided (i.e. how to download them using wget or curl – exact paths need to be specified and the data must be accessible)
-
-• Exact step by step usage with descriptive comments on what action is being performed in each step
-
-## References
-
-[1] Zhou L, Wang X, Peng L, et al. SEnSCA: Identifying possible ligand-receptor interactions and its application in cell-cell communication inference. J Cell Mol Med 28, e18372 (2024).
-
-[2] Armingol E, Officer A, Harismendy O, et al. Deciphering cell–cell interactions and communication from gene expression. Nat Rev Genet 22, 71–88 (2021).
-
-[3] Lim J, Park C, Kim M, et al. Advances in single-cell omics and multiomics for high-resolution molecular profiling. Exp Mol Med 56, 515–526 (2024).
-
-[4] Villemin JP, Bassaganyas L, Pourquier D, et al. Inferring ligand-receptor cellular networks from bulk and spatial transcriptomic datasets with BulkSignalR. Nucleic Acids Res 51, 4726–44 (2023). 
-
-[5] Di Tommaso P, Chatzou M, Floden E, et al. Nextflow enables reproducible computational workflows. Nat Biotechnol 35, 316–319 (2017).
-
-[6] Ghosh, D. & Mersha, T. B. Publicly available cytokine data: Limitations and opportunities. J Allergy and Clin Immunol 150, 1053–1056 (2022). 
-
-## Initial Project directory structure
+### Initial Project Directory Structure
+Upon cloning, the repository should come with a set of base files.
 <details>
-    <summary> Click here to see how the project directory should look like upon cloning. </summary>
+    <summary> Click here to see a tree overview of the overall directory structure </summary>
 
 ```bash
 tree biof501-term_project
@@ -203,3 +182,45 @@ tree biof501-term_project
 └── run.sh
 ```
 </details>
+
+Here is a checklist and details on important files:
+
+- `data/reference`
+    - `metadata.csv`: contains information such as different IDs, sex, and treatments for the samples used for this tutorial
+    - `cellchatv2_mouseLRI.rda`: 
+- 
+
+### Step 1: Preprocess FASTQ files
+### Step 2: Quantify reads using Salmon
+### Step 3: Perform differential expression analysis
+### Step 4: Perform pathway enrichment analysis
+### Expected final results directory
+
+• Installation (if necessary) including any datasets that are to be used if they are not provided (i.e. how to download them using wget or curl – exact paths need to be specified and the data must be accessible)
+
+• Exact step by step usage with descriptive comments on what action is being performed in each step
+
+## References
+[1] Zhou L, Wang X, Peng L, et al. SEnSCA: Identifying possible ligand-receptor interactions and its application in cell-cell communication inference. J Cell Mol Med 28, e18372 (2024).
+
+[2] Armingol E, Officer A, Harismendy O, et al. Deciphering cell–cell interactions and communication from gene expression. Nat Rev Genet 22, 71–88 (2021).
+
+[3] Lim J, Park C, Kim M, et al. Advances in single-cell omics and multiomics for high-resolution molecular profiling. Exp Mol Med 56, 515–526 (2024).
+
+[4] Sielemann K, Hafner A, Pucker B. The reuse of public datasets in the life sciences: potential risks and rewards. PeerJ. 8, e9954 (2020).
+
+[5] Villemin JP, Bassaganyas L, Pourquier D, et al. Inferring ligand-receptor cellular networks from bulk and spatial transcriptomic datasets with BulkSignalR. Nucleic Acids Res 51, 4726–44 (2023). 
+
+[6] Di Tommaso P, Chatzou M, Floden E, et al. Nextflow enables reproducible computational workflows. Nat Biotechnol 35, 316–319 (2017).
+
+[7] Ghosh, D. & Mersha, T. B. Publicly available cytokine data: Limitations and opportunities. J Allergy and Clin Immunol 150, 1053–1056 (2022). 
+
+[8] Mootha VK, et al. Nat Genet 34, 267–273 (2003).
+
+[9] Dimitrov D, Schäfer PSL, Farr E, et al. LIANA+ provides an all-in-one framework for cell–cell communication inference. Nat Cell Biol 26, 1613–1622 (2024).
+
+[10] Cui A, Huang T, Li S, et al. Dictionary of immune responses to cytokines at single-cell resolution. Nature 625, 377–384 (2024).
+
+[11] Browaeys R, Saelens W, & Saeys Y. NicheNet: modeling intercellular communication by linking ligands to target genes. Nat Methods 17, 159–162 (2020).
+
+[12] Jin, S., Plikus, M.V. & Nie, Q. CellChat for systematic analysis of cell–cell communication from single-cell transcriptomics. Nat Protoc (2024).
