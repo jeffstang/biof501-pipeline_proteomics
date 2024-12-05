@@ -11,28 +11,25 @@
 /*
  * Loading default parameters
 */
-
+fasta_url = "https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_mouse/release_M36/gencode.vM36.pc_transcripts.fa.gz"
+gtf_url = "https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_mouse/release_M36/gencode.vM36.basic.annotation.gtf.gz"
 params.fastq = "$baseDir/data/raw/*{1,2}.fastq.gz"
-params.fasta = "$baseDir/data/reference/grcm39_transcript.fa.gz"
-params.gtf = "$baseDir/data/reference/grcm39_transcript.gtf.gz"
 params.metadata_csv = "$baseDir/data/reference/metadata.csv" 
 params.db = "$baseDir/data/reference/cellchatv2_mouseLRI.rda"
 params.outdir = "results"
 
+// Provides an initial log detailing some 
 log.info """\
-        RNASeq Differential Analysis and 
-        ===============================================
+        RNASeq Differential Analysis - Inputs and Ouput (see Results Directory)
+        =======================================================================
         FASTQ                    : ${params.fastq}
-        Transcriptome FASTA      : ${params.fasta}
-        Gene Annotations         : ${params.gtf}
+        Transcriptome FASTA      : ${fasta_url.split("/")[-1]}
+        Transcriptome Annotation : ${fasta_url.split("/")[-1]}
         Cell Chat DB v2          : ${params.db}
         Sample Info Table        : ${params.metadata_csv}
         Results Directory        : ${params.outdir}
         """
         .stripIndent()
-
-fasta_url = "https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_mouse/release_M36/gencode.vM36.pc_transcripts.fa.gz"
-gtf_url = "https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_mouse/release_M36/gencode.vM36.basic.annotation.gtf.gz"
 
 // import processes from modules required to run the pipeline
 include { DOWNLOAD_FASTA; DOWNLOAD_GTF }            from "./modules/download_ref"
@@ -129,6 +126,8 @@ workflow {
  * Subworkflows:
  * I grouped the processes for downloading FASTA and GTF files
  * into one and called on DOWNLOAD_REFERENCES in the main workflow
+ * For these two processed, I decided not to output the downloaded 
+ * references into memory 
 */
 workflow DOWNLOAD_REFERENCES {
     take:
