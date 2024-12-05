@@ -123,7 +123,7 @@ git-2.43.0
 nextflow-24.10.0
 open-jdk-17.0.10
 ```
-After initial setup requirements are met, this GitHub repository can be downloaded using:
+After initial setup requirements are met, please clone this GitHub Repository:
 ```
 git clone https://github.com/jeffstang/biof501-term_project.git
 ```
