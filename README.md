@@ -1,12 +1,12 @@
 # BIOF 501 Term Project: RNASeq workflow for differential expression and pathway enrichment 
 
-## Table of Content:
+## Table of Contents:
 - [Background and Rationale](#background-and-rationale)
     - [Aims](#aims)
     - [Package Dependencies](#package-dependencies)
     - [Workflow Overview](#workflow-overview)
 - [Usage](#usage)
-    - [Installation](#installation)
+    - [Installation Overview](#installation-overview)
     - [Step 1: Preprocess FASTQ files](#step-1-preprocess-fastq-files)
     - [Step 2: Quantify reads using Salmon](#step-2-quantify-reads)
     - [Step 3: Perform differential expression analysis](#step-3-perform-differential-expression-analysis)
@@ -114,7 +114,7 @@ graph TD
 </details>
 
 ## Usage
-### Base Installation Overview and Versions
+### Installation Overview
 The following versions of software were installed following the [Nextflow Docs]()
 ```
 bash-5.2.21
@@ -122,6 +122,10 @@ docker-26.1.1
 git-2.43.0
 nextflow-24.10.0
 open-jdk-17.0.10
+```
+After initial setup requirements are met, this GitHub repository can be downloaded using:
+```
+git clone https://github.com/jeffstang/biof501-term_project.git
 ```
 
 ### Step 1: Preprocess FASTQ files
