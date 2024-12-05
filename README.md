@@ -18,11 +18,13 @@ Cellular communication occurs through ligands binding to surface receptors, infl
 
 As omics technologies advance, complexity of data generated increase [[5](#references)]. In combination with complexity, rapid-evolving terminologies further create variability and barriers for reproducibility when leveraging these publicly available archival data sets[[6](#references)].  
 
-### Aims
-Aim 1: To provide a 
+### Aims:
+**Aim 1 -** To provide a reproducible end-to-end workflow to analyze gene expression starting from raw fastq files.
+
+**Aim 2 -** To explore gene set enrichment analysis in the context of LRIs characterized by pre-existing database annotations.
 
 ### Package Dependencies
-#### List of docker images pulled by tool:
+#### List of docker images used (see[ nextflow.config](https://github.com/jeffstang/biof501-term_project/blob/main/nextflow.config)):
 ```
 edgeR
 quay.io/biocontainers/bioconductor-edger:4.0.2--r43hf17093f_0
@@ -36,6 +38,9 @@ staphb/fastqc:0.12.1
 fgsea
 quay.io/biocontainers/bioconductor-fgsea:1.28.0--r43hf17093f_1 
 
+salmon
+combinelab/salmon:1.10.3
+
 trimmomatic
 quay.io/biocontainers/trimmomatic:0.36--4                 
 
@@ -46,8 +51,8 @@ quay.io/biocontainers/bioconductor-tximport:1.26.0--r42hdfd78af_0
 ### Workflow Overview
 The workflow includes the following steps:
 
-1. Download Reference files (FASTA, GTF)
-2. Preprocess raw fastq files (includes generating QC reports via `fastqc` and trimming the reads using `trimmomatic`)
+1. Retrieve reference files from ENCODE
+2. Preprocess raw fastq files  (provides quality metrics from `fastqc` pre- and post-trimming and trims reads using `trimmomatic`)
 3. Count transcripts and generate count matrix using `salmon`
 4. Preprocess and analyze differentially expressed genes (DGE) using `limma-voom` 
 5. We leverage `fgsea` and the example database to provide insight on ligand activity which can reflect on signalling pathway activity
@@ -110,6 +115,7 @@ graph TD
 
 ## Usage
 ### Base Installation Overview and Versions
+The following versions of software were installed following the [Nextflow Docs]()
 ```
 bash-5.2.21
 docker-26.1.1
