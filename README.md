@@ -14,7 +14,7 @@
 - [References](#references)
 
 ## Background and Rationale
-Cellular communication occurs through ligands binding to surface receptors, triggering responses and influencing signaling pathways [1, 2]. Research on ligand-receptor interactions (LRIs) has gained momentum with single-cell omics, which provide high-resolution insights into individual cell states [3]. However, bulk transcriptomic datasets, with their extensive clinical data from patient cohorts, remain valuable. Thus, there is a need for tools that complement single-cell studies by analyzing cellular networks in bulk transcriptomics [4].
+Cellular communication occurs through ligands binding to surface receptors, triggering responses and influencing signaling pathways [[1](#references), [2](#references)]. Research on ligand-receptor interactions (LRIs) has gained momentum with single-cell omics, which provide high-resolution insights into individual cell states [[3](#references)]. However, bulk transcriptomic datasets, with their extensive clinical data from patient cohorts, remain valuable. Thus, there is a need for tools that complement single-cell studies by analyzing cellular networks in bulk transcriptomics [[4](#references)].
 
 ### Aims
 Aim 1: To provide a 
@@ -30,17 +30,68 @@ The workflow includes the following steps:
 4. Preprocess and analyze differentially expressed genes (DGE) using `limma-voom` 
 5. We leverage `fgsea` and the example database to provide insight on ligand activity which can reflect on signalling pathway activity
 
-<details>
-    <summary>You can include find the DAG workflow here</summary>
-![Workflow DAG](path/to/DAG-image.png)
+Below is a workflow diagram:
+
+```mermaid
+graph TD
+    %% Main Workflow
+    subgraph MAIN_WORKFLOW ["Main Workflow"]
+        direction TB
+        RAW_FASTQ[Input: RAW FASTQ files] --> TRIM[TRIM_READS: Trim reads using Trimmomatic]
+        TRIM --> SALMON_QUANT[SALMON_QUANT: Quantify transcripts using Salmon]
+        SALMON_QUANT --> TXIMPORT[TXIMPORT_PROCESS: Merge transcript IDs to gene names]
+        TXIMPORT --> DEA[LIMMA_VOOM_DEA: Run differential expression analysis]
+        DEA --> VOLCANO[ENHANCED_VOLCANO_PLOT: Generate volcano plot]
+        DEA --> PATHWAY[PATHWAY_ENRICHMENT: Perform pathway enrichment analysis]
+    end
+
+    %% FASTQC Workflow
+    subgraph FASTQC_WORKFLOW ["FASTQC Workflow"]
+        direction TB
+        RAW_FASTQ --> FASTQC_RAW[FASTQC_RAW: Generate FASTQC for raw reads] 
+        FASTQC_RAW --> TRIM
+        TRIM --> FASTQC_TRIMMED[FASTQC_TRIMMED: Generate FASTQC for trimmed reads]
+    end
+
+    %% SALMON Workflow
+    subgraph SALMON_WORKFLOW ["Auxiliary File Requirements"]
+        direction TB
+        DOWNLOAD_FASTA[DOWNLOAD_FASTA: Download FASTA] --> SALMON_INDEX[SALMON_INDEX: Index FASTA file]
+        DOWNLOAD_GTF[DOWNLOAD_GTF: Download GTF] --> CREATE_TX2GENE[CREATE_TX2GENE: Create tx2gene mapping]
+        SALMON_INDEX --> SALMON_QUANT
+        DOWNLOAD_GTF --> SALMON_QUANT
+        CREATE_TX2GENE --> TXIMPORT
+    end
+
+    %% Styling
+    style MAIN_WORKFLOW fill:#E3F2FD,stroke:#42A5F5,stroke-width:2px
+    style FASTQC_WORKFLOW fill:#FFEBEE,stroke:#E57373,stroke-width:2px
+    style SALMON_WORKFLOW fill:#FFF3E0,stroke:#FFA726,stroke-width:2px
+    
+    %% Input and Styling
+    style RAW_FASTQ fill:#C8E6C9,stroke:#388E3C,stroke-width:2px
+    style FASTQC_RAW fill:#BBDEFB,stroke:#1976D2,stroke-width:2px
+    style FASTQC_TRIMMED fill:#BBDEFB,stroke:#1976D2,stroke-width:2px
+    style TRIM fill:#FFCCBC,stroke:#E64A19,stroke-width:2px
+    style SALMON_INDEX fill:#FFD54F,stroke:#F57F17,stroke-width:2px
+    style SALMON_QUANT fill:#FFD54F,stroke:#F57F17,stroke-width:2px
+    style DOWNLOAD_FASTA fill:#FFAB91,stroke:#D84315,stroke-width:2px
+    style DOWNLOAD_GTF fill:#FFAB91,stroke:#D84315,stroke-width:2px
+    style CREATE_TX2GENE fill:#FFAB91,stroke:#D84315,stroke-width:2px
+    style TXIMPORT fill:#90CAF9,stroke:#1E88E5,stroke-width:2px
+    style DEA fill:#90CAF9,stroke:#1E88E5,stroke-width:2px
+    style VOLCANO fill:#CE93D8,stroke:#8E24AA,stroke-width:2px
+    style PATHWAY fill:#CE93D8,stroke:#8E24AA,stroke-width:2px
+
+```
+</details>
 
 ## Usage
 ### Installation
-### 1.
-### 2.
-### 3.
-
-• Make sure you format everything so that step by step usage details are included. 
+### Step 1: Preprocess FASTQ files
+### Step 2: Quantify reads using Salmon
+### Step 3: Perform differential expression analysis
+### Step 4: Perform pathway enrichment analysis
 
 ## If we can’t run your pipeline then we can’t give you marks.
 
@@ -48,14 +99,27 @@ The workflow includes the following steps:
 
 • Exact step by step usage with descriptive comments on what action is being performed in each step
 
-## Project directory structure
+## References
+
+[1] Zhou L, Wang X, Peng L, et al. SEnSCA: Identifying possible ligand-receptor interactions and its application in cell-cell communication inference. J Cell Mol Med 28, e18372 (2024).
+
+[2] Armingol E, Officer A, Harismendy O, et al. Deciphering cell–cell interactions and communication from gene expression. Nat Rev Genet 22, 71–88 (2021).
+
+[3] Lim J, Park C, Kim M, et al. Advances in single-cell omics and multiomics for high-resolution molecular profiling. Exp Mol Med 56, 515–526 (2024).
+
+[4] Villemin JP, Bassaganyas L, Pourquier D, et al. Inferring ligand-receptor cellular networks from bulk and spatial transcriptomic datasets with BulkSignalR. Nucleic Acids Res 51, 4726–44 (2023). 
+
+## Initial Project directory structure
 <details>
-    <summary> Click here to see the drop-down view of project directory in a tree-like format. </summary>
+    <summary> Click here to see how the project directory should look like upon cloning. </summary>
 
 ```bash
+tree biof501-term_project
 ├── README.md
 ├── bin
+│   ├── ligand_enrichment_analysis.R
 │   ├── limma_voom.R
+│   ├── plot_enhancedVolcano.R
 │   └── tximport.R
 ├── data
 │   ├── raw
@@ -68,6 +132,8 @@ The workflow includes the following steps:
 │   │   ├── SRR24360653.sub_1.fastq.gz
 │   │   └── SRR24360653.sub_2.fastq.gz
 │   └── reference
+│       ├── CellChatDB_preprocess.R
+│       ├── cellchatv2_mouseLRI.rda
 │       └── metadata.csv
 ├── main.nf
 ├── modules
@@ -77,7 +143,11 @@ The workflow includes the following steps:
 │   │   └── main.nf
 │   ├── download_ref
 │   │   └── main.nf
+│   ├── enhanced_volcano
+│   │   └── main.nf
 │   ├── fastqc
+│   │   └── main.nf
+│   ├── fgsea
 │   │   └── main.nf
 │   ├── salmon
 │   │   └── main.nf
@@ -87,123 +157,6 @@ The workflow includes the following steps:
 │       └── main.nf
 ├── nextflow.config
 ├── results
-│   ├── fastqc
-│   │   └── raw
-│   │       ├── SRR24360639.sub
-│   │       │   ├── SRR24360639.sub_1_fastqc.html
-│   │       │   ├── SRR24360639.sub_1_fastqc.zip
-│   │       │   ├── SRR24360639.sub_2_fastqc.html
-│   │       │   └── SRR24360639.sub_2_fastqc.zip
-│   │       ├── SRR24360643.sub
-│   │       │   ├── SRR24360643.sub_1_fastqc.html
-│   │       │   ├── SRR24360643.sub_1_fastqc.zip
-│   │       │   ├── SRR24360643.sub_2_fastqc.html
-│   │       │   └── SRR24360643.sub_2_fastqc.zip
-│   │       ├── SRR24360647.sub
-│   │       │   ├── SRR24360647.sub_1_fastqc.html
-│   │       │   ├── SRR24360647.sub_1_fastqc.zip
-│   │       │   ├── SRR24360647.sub_2_fastqc.html
-│   │       │   └── SRR24360647.sub_2_fastqc.zip
-│   │       └── SRR24360653.sub
-│   │           ├── SRR24360653.sub_1_fastqc.html
-│   │           ├── SRR24360653.sub_1_fastqc.zip
-│   │           ├── SRR24360653.sub_2_fastqc.html
-│   │           └── SRR24360653.sub_2_fastqc.zip
-│   ├── limma_voom
-│   │   └── logFC_DEG_topTable.csv
-│   ├── salmon_quant
-│   │   ├── SRR24360639.sub
-│   │   │   ├── aux_info
-│   │   │   │   ├── ambig_info.tsv
-│   │   │   │   ├── expected_bias.gz
-│   │   │   │   ├── fld.gz
-│   │   │   │   ├── meta_info.json
-│   │   │   │   ├── observed_bias.gz
-│   │   │   │   └── observed_bias_3p.gz
-│   │   │   ├── cmd_info.json
-│   │   │   ├── libParams
-│   │   │   │   └── flenDist.txt
-│   │   │   ├── lib_format_counts.json
-│   │   │   ├── logs
-│   │   │   │   └── salmon_quant.log
-│   │   │   ├── quant.genes.sf
-│   │   │   └── quant.sf
-│   │   ├── SRR24360643.sub
-│   │   │   ├── aux_info
-│   │   │   │   ├── ambig_info.tsv
-│   │   │   │   ├── expected_bias.gz
-│   │   │   │   ├── fld.gz
-│   │   │   │   ├── meta_info.json
-│   │   │   │   ├── observed_bias.gz
-│   │   │   │   └── observed_bias_3p.gz
-│   │   │   ├── cmd_info.json
-│   │   │   ├── libParams
-│   │   │   │   └── flenDist.txt
-│   │   │   ├── lib_format_counts.json
-│   │   │   ├── logs
-│   │   │   │   └── salmon_quant.log
-│   │   │   ├── quant.genes.sf
-│   │   │   └── quant.sf
-│   │   ├── SRR24360647.sub
-│   │   │   ├── aux_info
-│   │   │   │   ├── ambig_info.tsv
-│   │   │   │   ├── expected_bias.gz
-│   │   │   │   ├── fld.gz
-│   │   │   │   ├── meta_info.json
-│   │   │   │   ├── observed_bias.gz
-│   │   │   │   └── observed_bias_3p.gz
-│   │   │   ├── cmd_info.json
-│   │   │   ├── libParams
-│   │   │   │   └── flenDist.txt
-│   │   │   ├── lib_format_counts.json
-│   │   │   ├── logs
-│   │   │   │   └── salmon_quant.log
-│   │   │   ├── quant.genes.sf
-│   │   │   └── quant.sf
-│   │   └── SRR24360653.sub
-│   │       ├── aux_info
-│   │       │   ├── ambig_info.tsv
-│   │       │   ├── expected_bias.gz
-│   │       │   ├── fld.gz
-│   │       │   ├── meta_info.json
-│   │       │   ├── observed_bias.gz
-│   │       │   └── observed_bias_3p.gz
-│   │       ├── cmd_info.json
-│   │       ├── libParams
-│   │       │   └── flenDist.txt
-│   │       ├── lib_format_counts.json
-│   │       ├── logs
-│   │       │   └── salmon_quant.log
-│   │       ├── quant.genes.sf
-│   │       └── quant.sf
-│   ├── trimmomatic
-│   │   ├── SRR24360639.sub
-│   │   │   ├── SRR24360639.sub_R1.trimmed.fastq.gz
-│   │   │   ├── SRR24360639.sub_R1.unpaired.fastq.gz
-│   │   │   ├── SRR24360639.sub_R2.trimmed.fastq.gz
-│   │   │   └── SRR24360639.sub_R2.unpaired.fastq.gz
-│   │   ├── SRR24360643.sub
-│   │   │   ├── SRR24360643.sub_R1.trimmed.fastq.gz
-│   │   │   ├── SRR24360643.sub_R1.unpaired.fastq.gz
-│   │   │   ├── SRR24360643.sub_R2.trimmed.fastq.gz
-│   │   │   └── SRR24360643.sub_R2.unpaired.fastq.gz
-│   │   ├── SRR24360647.sub
-│   │   │   ├── SRR24360647.sub_R1.trimmed.fastq.gz
-│   │   │   ├── SRR24360647.sub_R1.unpaired.fastq.gz
-│   │   │   ├── SRR24360647.sub_R2.trimmed.fastq.gz
-│   │   │   └── SRR24360647.sub_R2.unpaired.fastq.gz
-│   │   └── SRR24360653.sub
-│   │       ├── SRR24360653.sub_R1.trimmed.fastq.gz
-│   │       ├── SRR24360653.sub_R1.unpaired.fastq.gz
-│   │       ├── SRR24360653.sub_R2.trimmed.fastq.gz
-│   │       └── SRR24360653.sub_R2.unpaired.fastq.gz
-│   └── tximport
-│       └── salmon_counts_txi.csv
 └── run.sh
 ```
-
-## References
-1. Zhou L, Wang X, Peng L, et al. SEnSCA: Identifying possible ligand-receptor interactions and its application in cell-cell communication inference. J Cell Mol Med 28, e18372 (2024).
-2. Armingol E, Officer A, Harismendy O, et al. Deciphering cell–cell interactions and communication from gene expression. Nat Rev Genet 22, 71–88 (2021).
-3. Lim J, Park C, Kim M, et al. Advances in single-cell omics and multiomics for high-resolution molecular profiling. Exp Mol Med 56, 515–526 (2024).
-4. Villemin JP, Bassaganyas L, Pourquier D, et al. Inferring ligand-receptor cellular networks from bulk and spatial transcriptomic datasets with BulkSignalR. Nucleic Acids Res 51, 4726–44 (2023). 
+</details>
