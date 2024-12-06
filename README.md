@@ -7,8 +7,11 @@
     - [Workflow Overview](#workflow-overview)
 - [Usage](#usage)
     - [Installation](#installation)
-    - [Project Structure and Overview](#project-structure-and-overview)
     - [Quickstart](#quickstart)
+    - [Project Structure and Overview](#project-structure-and-overview)
+        - [Inputs](#overview-of-inputs)
+        - [Important Expected Outputs](#overview-of-expected-important-outputs)
+- [Details For Each Step](#details-for-each-step)
     - [Step 1: Preprocess FASTQ files](#step-1-preprocess-fastq-files)
     - [Step 2: Quantify reads using Salmon](#step-2-quantify-reads)
     - [Step 3: Perform differential expression analysis](#step-3-perform-differential-expression-analysis)
@@ -28,12 +31,14 @@ A popular method in transcriptomics is the gene set enrichment analysis (GSEA) a
 **Aim 2 -** To explore gene set enrichment analysis in the context of LRIs described by pre-existing database annotations. A **key assumption** of note is that receptor gene expression changes can be indicative of ligand binding and sufficiently describes the ligand activity (in the context of fgsea, the "pathway").  
 
 ### Workflow Overview
-The workflow includes the following steps:
-1. Retrieve reference files from ENCODE
-2. Preprocess raw fastq files - provides quality metrics from `fastqc` [[13](#references)] pre- and post-trimming and trims reads using `trimmomatic` [[14](#references)]
-3. Count transcripts and generate count matrix using `salmon` [[15](#references)]
-4. Preprocess and analyze differentially expressed genes (DEGs) using `limma-voom` [[16](#references)] 
-5. We leverage `fgsea` [[17](#references)] and the example database to provide insight on ligand activity which can reflect on signalling pathway activity
+The workflow includes the following steps for analyzing mouse RNAseq samples:
+1. Retrieve reference files from [GENCODE](https://www.gencodegenes.org/mouse/)
+2. Preprocess raw fastq files
+    - Provides quality metrics from `fastqc` [[13](#references)] pre- and post-trimming
+    - Trims reads using `trimmomatic` [[14](#references)]
+3. Count transcripts using `salmon` [[15](#references)] and generate a count matrix at the gene-level using `tximport` [[16](#references)]
+4. Preprocess and analyze differentially expressed genes (DEGs) using `limma-voom` [[17](#references)] 
+5. We leverage `fgsea` [[18](#references)] and an example database (CellChatDB v2 [[12](#references)]) to provide insight on ligand activity which can reflect on signalling pathway activity
 
 Below is a workflow diagram:
 
@@ -130,6 +135,19 @@ If initial setup requirements are met, please clone this GitHub Repository:
 git clone https://github.com/jeffstang/biof501-term_project.git
 ```
 
+### Quickstart
+**Run the pipeline:**
+
+To run the pipeline, make sure to be in the project directory. Then, run the `main.nf` as shown below.
+```bash
+cd ./biof501-term_project
+nextflow run main.nf
+```
+This will run the entire workflow and a launch log will be displayed detailing the title of the workflow, some required inputs, and a list of processes it will run. Once a process is completed, it will show a checkmark to the right as shown below:
+
+![Command Prompt Display](./assets/nextflow-startup.png)
+
+
 ### Project Structure and Overview
 Upon cloning, the repository should come with a set of base files.
 <details>
@@ -182,7 +200,7 @@ Upon cloning, the repository should come with a set of base files.
 ```
 </details>
 
-#### Overview
+#### Overview of Inputs
 Here is a checklist and overview of important initial files in the project directory (and their relative paths) needed to run this demo along with descriptions of their origin:
 
 `data/reference`:
@@ -214,7 +232,7 @@ seqtk sample -s100 SRR24360639_1.fastq.gz 1000000 | gzip > SRR24360639.sub_1.fas
 </details>
 <br> 
 
-`bin` is a directory that contains all Rscripts which the processes use:
+`bin/`: is a directory that contains all Rscripts named corresponding to the process used:
 - `tximport.R`
 - `limma_voom.R`
 - `plot_enhancedVolcano.R`   
@@ -233,22 +251,132 @@ seqtk sample -s100 SRR24360639_1.fastq.gz 1000000 | gzip > SRR24360639.sub_1.fas
 - `tximport/`
 - `volcano_plot/`
 
-## Quickstart
-#### Run the pipeline:
-To run the pipeline, make sure to be in the project directory. Then, run the `main.nf` as shown below.
-```bash
-cd ./biof501-term_project
-nextflow run main.nf
-```
-This will run the entire workflow and a launch log will be displayed detailing the title of the workflow, some required inputs, and a list of processes it will run. Once a process is completed, it will show a checkmark to the right as shown below:
+#### Overview of Expected Important Outputs
+**FASTQC metrics:**
 
-![Command Prompt Display](./assets/nextflow-startup.png)
+**Differential Expression Analysis:**
 
+A **top table** output as a "comma-separated value" (CSV) file that shows all genes and their significance scores ordered by most significant based on fitting the linear model from limma for treatment vs. control. Below is a subset example of the 5 most significant DEGs.
+
+| Gene      | logFC   | AveExpr  | t          | P.Value           | adj.P.Val       | B          |
+|-----------|---------|----------|------------|-------------------|-----------------|------------|
+| Il4ra     | 5.3887  | 8.4107   | 26.6612    | 1.84e-09          | 1.47e-05        | 11.2194    |
+| Ptpn1     | 1.8707  | 8.9710   | 19.1480    | 2.91e-08          | 1.16e-04        | 9.8171     |
+| Plek      | 1.7910  | 8.7467   | 17.7162    | 5.53e-08          | 1.21e-04        | 9.1923     |
+| Rab3il1   | 1.8201  | 8.4658   | 17.1868    | 7.10e-08          | 1.21e-04        | 8.9327     |
+| Litaf     | 1.4867  | 9.2331   | 16.3916    | 1.05e-07          | 1.21e-04        | 8.5839     |
+
+A **volcano plot** that provides a useful visual on genes that differ significantly between treatment compared to control.
+
+![volcano_plot](./assets/volcano_plot.png)
+
+**Ligand (Pathway) Enrichment Table:**
+
+A table of significant ligands characterized by their receptor gene sets using CellChatDB LRI annotations ordered by their adjusted p values. Below shows a subset of the top 5 ligands represented. Note: Values may not make sense and have ties due to the subsetting of the fastq files. These may not make biological sense but it is expected that using the full raw fastq reads as input should generate meaningful results.
+
+| Pathway  | pval           | padj           | log2err   | ES          | NES          | Size | Leading Edge |
+|----------|----------------|----------------|-----------|-------------|--------------|------|--------------|
+| Cd55     | 0.0015374361   | 0.0272538295   | 0.4551    | -0.9986     | -1.3357      | 1    | Adgre5       |
+| Cd55b    | 0.0015374361   | 0.0272538295   | 0.4551    | -0.9986     | -1.3357      | 1    | Adgre5       |
+| Cd86     | 0.0004179491   | 0.0272538295   | 0.4985    | -0.9997     | -1.3372      | 1    | Cd28         |
+| Cntn1    | 0.0016150417   | 0.0272538295   | 0.4551    | -0.9877     | -1.4828      | 2    | Notch2       |
+| Dlk1     | 0.0016150417   | 0.0272538295   | 0.4551    | -0.9877     | -1.4828      | 2    | Notch2       |
+
+## Details For Each Step
 ### Step 1: Preprocess FASTQ files
+- Preprocessing 
+
 ### Step 2: Quantify reads using Salmon
 ### Step 3: Perform differential expression analysis
 ### Step 4: Perform pathway enrichment analysis
-### Expected final results directory
+
+### Expected Final Results Directory
+
+<details>
+    <summary> Click here to see the tree structure of the expected results directory </summary>
+
+```bash
+results
+├── fastqc
+│   ├── raw
+│   │   ├── SRR24360639.sub
+│   │   │   ├── SRR24360639.sub_1_fastqc.html
+│   │   │   ├── SRR24360639.sub_1_fastqc.zip
+│   │   │   ├── SRR24360639.sub_2_fastqc.html
+│   │   │   └── SRR24360639.sub_2_fastqc.zip
+│   │   ├── ...
+│   │   └── SRR24360653.sub
+│   │       ├── SRR24360653.sub_1_fastqc.html
+│   │       ├── SRR24360653.sub_1_fastqc.zip
+│   │       ├── SRR24360653.sub_2_fastqc.html
+│   │       └── SRR24360653.sub_2_fastqc.zip
+│   └── trimmed
+│       ├── SRR24360639.sub
+│       │   ├── SRR24360639.sub_R1.trimmed_fastqc.html
+│       │   ├── SRR24360639.sub_R1.trimmed_fastqc.zip
+│       │   ├── SRR24360639.sub_R2.trimmed_fastqc.html
+│       │   └── SRR24360639.sub_R2.trimmed_fastqc.zip
+│       ├── ...
+│       └── SRR24360653.sub
+│           ├── SRR24360653.sub_R1.trimmed_fastqc.html
+│           ├── SRR24360653.sub_R1.trimmed_fastqc.zip
+│           ├── SRR24360653.sub_R2.trimmed_fastqc.html
+│           └── SRR24360653.sub_R2.trimmed_fastqc.zip
+├── ligand_enrichment
+│   └── fgsea_ligand_activity.txt
+├── limma_voom
+│   └── logFC_DEG_topTable.csv
+├── salmon_quant
+│   ├── SRR24360639.sub
+│   │   ├── aux_info
+│   │   │   ├── ambig_info.tsv
+│   │   │   ├── expected_bias.gz
+│   │   │   ├── fld.gz
+│   │   │   ├── meta_info.json
+│   │   │   ├── observed_bias.gz
+│   │   │   └── observed_bias_3p.gz
+│   │   ├── cmd_info.json
+│   │   ├── libParams
+│   │   │   └── flenDist.txt
+│   │   ├── lib_format_counts.json
+│   │   ├── logs
+│   │   │   └── salmon_quant.log
+│   │   ├── quant.genes.sf
+│   │   └── quant.sf
+│   ├── ...
+│   └── SRR24360653.sub
+│       ├── aux_info
+│       │   ├── ambig_info.tsv
+│       │   ├── expected_bias.gz
+│       │   ├── fld.gz
+│       │   ├── meta_info.json
+│       │   ├── observed_bias.gz
+│       │   └── observed_bias_3p.gz
+│       ├── cmd_info.json
+│       ├── libParams
+│       │   └── flenDist.txt
+│       ├── lib_format_counts.json
+│       ├── logs
+│       │   └── salmon_quant.log
+│       ├── quant.genes.sf
+│       └── quant.sf
+├── trimmomatic
+│   ├── SRR24360639.sub
+│   │   ├── SRR24360639.sub_R1.trimmed.fastq.gz
+│   │   ├── SRR24360639.sub_R1.unpaired.fastq.gz
+│   │   ├── SRR24360639.sub_R2.trimmed.fastq.gz
+│   │   └── SRR24360639.sub_R2.unpaired.fastq.gz
+│   └── SRR24360653.sub
+│       ├── SRR24360653.sub_R1.trimmed.fastq.gz
+│       ├── SRR24360653.sub_R1.unpaired.fastq.gz
+│       ├── SRR24360653.sub_R2.trimmed.fastq.gz
+│       └── SRR24360653.sub_R2.unpaired.fastq.gz
+├── tximport
+│   └── salmon_counts_txi.csv
+└── volcano_plot
+    └── volcano_plot.png
+```
+</details>
 
 ## References
 [1] Zhou L, Wang X, Peng L, et al. SEnSCA: Identifying possible ligand-receptor interactions and its application in cell-cell communication inference. J Cell Mol Med 28, e18372 (2024).
@@ -281,6 +409,8 @@ This will run the entire workflow and a launch log will be displayed detailing t
 
 [15] salmon
 
-[16] limma
+[16] tximport
 
-[17] fgsea
+[17] limma
+
+[18] fgsea
