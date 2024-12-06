@@ -216,7 +216,7 @@ GSM7265457,Female,Il10,SRR24360639.sub,biol_rep_2
 ```
 - `cellchatv2_mouseLRI.rda`: CellChatDB v2 LRI annotations in an R Data File. When read in, it is a list of ligands and their corresponding list of receptors (in a list of lists format).
 
-- `CellChatDB_preprocess.R`: **not covered in this demo** but in case there is interest, this is an Rscript details how the database was retrieved, cleaned up and transformed. 
+- `CellChatDB_preprocess.R`: **not covered in this demo** but in case there is interest, this is an Rscript detailing how the database was retrieved, cleaned up and transformed. 
 
 `data/raw`:
 
@@ -251,7 +251,11 @@ seqtk sample -s100 SRR24360639_1.fastq.gz 1000000 | gzip > SRR24360639.sub_1.fas
 - `volcano_plot/`
 
 #### Overview of Expected Important Outputs
+The following is an overview on the most important outputs to consider when looking at the results in the workflow. For a more detailed visual of outputs, please check the [Expected Final Results Directory](#expected-final-results-directory)
+
 **FASTQC metrics:**
+
+There should be two directories of FASTQC reports generated on each sample in `results/`. The first is named `raw/` and the second is named `trimmed/`. Each FASTQ
 
 **Differential Expression Analysis:**
 
@@ -283,7 +287,7 @@ A table of significant ligands characterized by their receptor gene sets using C
 
 ## Details For Each Step
 ### Step 1: Preprocess FASTQ files
-- Preprocessing 
+- FastQC is a tool that is canonically used for visualizing specific metrics such as read base quality, informs the user of adapter content in the sequences, read length, and GC content [[13](#references)]  
 
 ### Step 2: Quantify reads using Salmon
 ### Step 3: Perform differential expression analysis
