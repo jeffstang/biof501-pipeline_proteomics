@@ -11,7 +11,7 @@
     - [Project Structure and Overview](#project-structure-and-overview)
         - [Inputs](#overview-of-inputs)
         - [Important Expected Outputs](#overview-of-expected-important-outputs)
-- [Details For Each Step](#details-for-each-step)
+- [Detailed Description for Each Step](#detailed-description-for-each-step)
     - [Step 1: Preprocess FASTQ files](#step-1-preprocess-fastq-files)
     - [Step 2: Quantify reads using Salmon](#step-2-quantify-reads)
     - [Step 3: Perform differential expression analysis](#step-3-perform-differential-expression-analysis)
@@ -285,48 +285,62 @@ A table of significant ligands characterized by their receptor gene sets using C
 | Cntn1    | 0.0016150417   | 0.0272538295   | 0.4551    | -0.9877     | -1.4828      | 2    | Notch2       |
 | Dlk1     | 0.0016150417   | 0.0272538295   | 0.4551    | -0.9877     | -1.4828      | 2    | Notch2       |
 
-## Details For Each Step
-### Step 1: Preprocess FASTQ files
+# Detailed Description For Each Step
+## Step 1: Preprocess FASTQ files
+Download Reference FASTA and GTF
+  - Downloads the transcriptome reference assembly (sequence file) of GRCm39 from GENCODE and its basic annotation file that detailsdifferent IDs such as `gene_id` or`transcript_id`.  
+  - The FASTA is used for indexing and quantifying transcripts 
+  - The GTF is used for quantifying transcripts and converting transcript IDs into gene symbols
 
-- Download Reference FASTA and GTF
-    - Downloads the transcriptome reference assembly (sequence file) of GRCm39 from GENCODE and its basic annotation file that details different IDs such as `gene_id` or `transcript_id`.  
-- FastQC (Raw and Trimmed Reads):
-    - Analyze the quality of raw and trimmed sequencing reads
-    - Generate reports to detect issues like adapter contamination, GC bias, or low-quality reads [[13](#references)].
-    - This will ensure input reads meet quality standards for reliable transcript counting
-- Trimmomatic
-    - Trims adapter sequences (which may have been introduced during library prep that are part of wet lab protocols with no biological relevance) and low-quality bases from raw sequencing reads.
-    - For the `trimmomatic` tool, I set default flags and thresholds based on the [trimmomatic manual](http://www.usadellab.org/cms/uploads/supplementary/Trimmomatic/TrimmomaticManual_V0.32.pdf). Please adjust accordingly if needed.
-    - Improve the overall quality of reads for quantification.
-    - Note that unpaired reads may be output if one mate (ie. R1) may have passed quality checks while the other read (R2) did not. Unpaired reads may still hold valuable information and can be used for single-read analyses or as additional data [[14](#references)] thus, output them into memory as well. 
-    - This represents the **input to be used for `salmon`**
-    - Expected output: are **paired trimmed reads** and **unpaired reads** for each mate 
+FastQC (Raw and Trimmed Reads):
+- Analyze the quality of raw and trimmed sequencing reads
+- Generate reports to detect issues like adapter contamination, GC bias,or low-quality reads [[13](#references)].
+- This will ensure input reads meetquality standards for reliabletranscript counting
+
+Trimmomatic
+- Trims adapter sequences (which may have been introduced during library prep that are part of wet lab protocols with no biologicalrelevance) and low-quality bases from raw sequencing reads.
+- For the `trimmomatic` tool, I set default flags and thresholds based on the [trimmomatic manual](http://www.usadellab.org/cms/uploads/supplementary/TrimmomaticTrimmomaticManual_V0.32.pdf). Please adjust accordingly if needed.
+- Improve the overall quality of reads for quantification.
+- Expected output: are **paired trimmed reads** and **unpaired reads** for each mate 
+    - Note that unpaired reads may be output if one mate (ie. R1) may have passed quality checks while the other read (R2) did not. Unpaired reads may still hold valuable information and can be used for single-read analyses or as additional data [[14](#references)] thus, I have output them into memory as well. 
+
+The trimmed fastqs are the **input to be used for `salmon`**
 
 ### Step 2: Quantify reads using Salmon
-- Salmon (Index the FASTA)
-    - Salmon indexes the reference transcriptome (FASTA) in a format that is easy and fast to search. This step only needs to be done once and is not published into the results.
-    - Alternatively, you can also download pre-generated indices from other sources.
+Salmon (Index the FASTA)
+- Salmon indexes the reference transcriptome (FASTA) in a format that is easy and fast to search. This step only needs to be done once and is not published into the results.
+- Alternatively, you can also download pre-generated indices from other sources.
 
-- Salmon (Quantify Transcripts) [[15](#references)]
-    - Provides accurate and rapid transcript-level quantification essential for gene-level analysis
-    - The quantification step utilizes the indexed FASTA file and GTF annotations to map reads and sums up the paired trimmed fastqs per sample
-    - **IMPORTANT:** for this workflow, the relevant output that is used for downstream analyses are the **gene-level quantifications** named `quant.gene.sf` for each sample directory output. This is a text file with the following fields:
-        - Name: transcript IDs 
-        - Length: the length of the transcript in base pairs 
-        - EffectiveLength: the computed effective length of the transcript
-        - TPM: `salmon`'s estimates of the relative abundance of the transcript in transcripts per million
-        - NumReads: number of reads mapped to each transcript.   
+Salmon (Quantify Transcripts) [[15](#references)]
+- Provides accurate and rapid transcript-level quantification essential for gene-level analysis
+- The quantification step utilizes the indexed FASTA file and GTF annotations to map reads and sums up the paired trimmed fastqs per sample
+- **IMPORTANT:** for this workflow, the relevant output that is used for downstream analyses are the **gene-level quantifications** named `quant.gene.sf` for each sample directory output. This is a text file with the following fields:
+    - Name: transcript IDs 
+    - Length: the length of the transcript in base pairs 
+    - EffectiveLength: the computed effective length of the transcript
+    - TPM: `salmon`'s estimates of the relative abundance of the transcript in transcripts per million
+    - NumReads: number of reads mapped to each transcript.   
 
-- tximport [[16](#references)] is a tool that summarizes the above gene-level transcript counts per sample into a counts matrix format which is the preferred data format for downstream analyses like differential expression analysis. 
-    - The process `CREATE_TX2GENE` runs an `awk` command on the `GTF` annotation file that selects on the transcript ID and gene symbol to be output as a tab-delimited text file.
-    - This tx2gene file is used to sum up the transcripts at the gene-level and converts the names to human-readable gene symbols
-    - The final output is a gene x sample matrix where the rows represent all the genes captured for the demo data and the columns represent the SRR sample IDs. 
-- The output **gene-level counts matrix** of the `TXIMPORT` process is used for differential expression using `limma-voom` 
+`tximport` [[16](#references)] is a tool that summarizes the above gene-level transcript counts per sample into a counts matrix format which is the preferred data format for downstream analyses like differential expression analysis. 
+- The process `CREATE_TX2GENE` runs an `awk` command on the `GTF` annotation file that selects on the transcript ID and gene symbol to be output as a tab-delimited text file.
+- This tx2gene file is used to sum up the transcripts at the gene-level and converts the names to human-readable gene symbols
+- The final output is a gene x sample matrix where the rows represent all the genes captured for the demo data and the columns represent the SRR sample IDs. 
+
+The output **gene-level counts matrix** of the `TXIMPORT` process is used for differential expression using `limma-voom` 
 
 ### Step 3: Perform differential expression analysis
+Perform differential expression analysis using `limma`. Incorporates `voom` transformation to handle the mean-variance relationship of RNA-seq data [[17](#references)].
 
+- The process takes in both the `tximport` generated counts matrix and the `metadata.csv` file
+- The `metadata.csv` file contains the treatment required to set up the design matrix required for differential expression.
+
+Expected output is a top table where the row names are the gene symbols, logFC represent the directionality of the gene expression (downregulated if negative or upregulated if positive), p-values represent significance, and the p-adjusted values are the significance values after multiple-test correction.
+
+To easily visualize this explained output, a volcano plot was produced from this top table as shown [in the overview of important results.](#overview-of-expected-important-outputs)
 
 ### Step 4: Perform pathway enrichment analysis
+
+Using the reference database of LRIs from CellChatDB v2, and the top table of DEGs from Step 3 as input and applying it to the `fgsea` tool [[18](#references)], I generated a ranked table of ligands enriched with differentially expressed receptor gene sets. An example of this table is also shown in the [overview of important results](#overview-of-expected-important-outputs). 
 
 ### Expected Final Results Directory
 
