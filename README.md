@@ -255,7 +255,8 @@ The following is an overview on the most important outputs to consider when look
 
 **FASTQC metrics:**
 
-There should be two directories of FASTQC reports generated on each sample in `results/`. The first is named `raw/` and the second is named `trimmed/`. Each FASTQ
+There should be two directories of FASTQC reports generated on each sample in `results/`. The first is named `raw/` and the second is named `trimmed/`. Each FASTQC sample directory should contain a .ZIP and .HTML file for R1 and R2. Opening an example .HTML file will show the full summary report for that fastq file like so:
+![fastqc_report](./assets/fastqc_report.png)
 
 **Differential Expression Analysis:**
 
