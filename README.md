@@ -340,7 +340,7 @@ To easily visualize this explained output, a volcano plot was produced from this
 
 ### Step 4: Perform pathway enrichment analysis
 
-Using the reference database of LRIs from CellChatDB v2, and the top table of DEGs from Step 3 as input and applying it to the `fgsea` tool [[18](#references)], I generated a ranked table of ligands enriched with differentially expressed receptor gene sets. An example of this table is also shown in the [overview of important results](#overview-of-expected-important-outputs). 
+Using the reference database of LRIs from CellChatDB v2, and the top table of DEGs from Step 3 as input and applying it to the `fgsea` tool, a faster implementation of GSEA [[18](#references)], I generated a ranked table of ligands enriched with differentially expressed receptor gene sets. An example of this table is also shown in the [overview of important results](#overview-of-expected-important-outputs). 
 
 ### Expected Final Results Directory
 
@@ -455,14 +455,14 @@ results
 
 [12] Jin, S., Plikus, M.V. & Nie, Q. CellChat for systematic analysis of cell–cell communication from single-cell transcriptomics. Nat Protoc (2024).
 
-[13] fastqc
+[13] Andrews S. FastQC: a quality control tool for high throughput sequence data. Available online at: http://www.bioinformatics.babraham.ac.uk/projects/fastqc (2010).
 
-[14] trimmomatic
+[14] Bolger AM, Lohse M, Usadel B. Trimmomatic: a flexible trimmer for Illumina sequence data. Bioinformatics 30(15), 2114-20 (2014)
 
-[15] salmon
+[15] Patro, R., Duggal, G., Love, M. et al. Salmon provides fast and bias-aware quantification of transcript expression. Nat Methods 14, 417–419 (2017).
 
-[16] Soneson C, Love MI, Robinson MD (2015). Differential analyses for RNA-seq: transcript-level estimates improve gene-level inferences. F1000Research, 4.
+[16] Soneson C, Love MI, Robinson MD. Differential analyses for RNA-seq: transcript-level estimates improve gene-level inferences. F1000Research, 4 (2015).
 
-[17] limma
+[17] Ritchie ME, Phipson B, Wu D, Hu Y, et al. limma powers differential expression analyses for RNA-sequencing and microarray studies. Nucleic Acids Res 43(7), e47 (2015).
 
-[18] fgsea
+[18] Korotkevich G, Sukhov V, Sergushichev A. Fast gene set enrichment analysis. bioRxiv (2019).
